@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>Products/images/Laptop.jpg</file>
+        <file>Products/products_list.txt</file>
+        <file>Products/images/image_none.jpg</file>
+        <file>Products/images/AirConditionerDaikin.jpg</file>
+        <file>Products/images/AirpodPro2.jpg</file>
+        <file>Products/images/CameraCanon.jpg</file>
+        <file>Products/images/FloorMopKangoroo.jpg</file>
+        <file>Products/images/IpadAirWifi.jpg</file>
+        <file>Products/images/Iphone14.jpg</file>
+        <file>Products/images/LaundrymachineLG.jpg</file>
+        <file>Products/images/MicrowaveOvenSharp.jpg</file>
+        <file>Products/images/RefrigeratorSamSung.jpg</file>
+        <file>Products/images/SamSungGalaxy.jpg</file>
+        <file>Products/images/SoftenerDowny.jpg</file>
+        <file>Products/images/Solid-StateDriveKingston.jpg</file>
+        <file>Products/images/SwallowNestKhanhHoa.jpg</file>
+        <file>Products/images/TiviSony.jpg</file>
+        <file>Products/images/versus.jpg</file>
+    </qresource>
+</RCC>

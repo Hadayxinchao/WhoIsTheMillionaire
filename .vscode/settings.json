@@ -1,0 +1,12 @@
+{
+  "files.associations": {
+    "__hash_table": "cpp",
+    "__split_buffer": "cpp",
+    "deque": "cpp",
+    "forward_list": "cpp",
+    "ios": "cpp",
+    "string": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp"
+  }
+}

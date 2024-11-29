@@ -1,0 +1,10 @@
+amandajohnson password10 100
+kevinthomas password11 100
+susanmiller password12 100
+josephrossi password13 100
+t1 1 21100
+t2 1 4100
+t3 1 6100
+t4 1 9950
+t5 1 8150
+t100 1 5000

@@ -1,0 +1,60 @@
+1
+Iphone 14
+25000
+Iphone14.jpg
+2
+Air Conditioner Daikin
+15000
+AirConditionerDaikin.jpg
+3
+Laptop
+20000
+Laptop.jpg
+4
+Refrigerator SamSung
+12000
+RefrigeratorSamSung.jpg
+5
+Laundry machine LG
+7000
+LaundrymachineLG.jpg
+6
+SamSung Galaxy
+15000
+SamSungGalaxy.jpg
+7
+Tivi Sony
+20000
+TiviSony.jpg
+8
+Microwave oven Sharp
+3000
+MicrowaveOvenSharp.jpg
+9
+Camera Canon
+10000
+CameraCanon.jpg
+10
+Ipad Air Wifi
+19000
+IpadAirWifi.jpg
+11
+Airpod Pro 2
+500
+AirpodPro2.jpg
+12
+Solid-State Drive Kingston
+2000
+Solid-StateDriveKingston.jpg
+13
+Softener Downy
+159
+SoftenerDowny.jpg
+14
+Floor mop Kangoroo
+99
+FloorMopKangoroo.jpg
+15
+Swallow's nest Khanh Hoa
+600
+SwallowNestKhanhHoa.jpg
