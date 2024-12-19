@@ -1,3 +1,8 @@
+INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5
+INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5/QtWidgets
+INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5/QtGui
+INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5/QtCore
+INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5/QtNetwork
 QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setupSpinBoxes();
     m_socket = nullptr;
     m_acc_name.clear();
     ui->grpMain->setEnabled(false);
@@ -26,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QFile file(":/resources/Products/products_list.txt");
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
-        QMessageBox::critical(this, "SERVER",QString("Cannot open products_list.txt"));
+        QMessageBox::critical(this, "SERVER", QString("Cannot open products_list.txt"));
         exit(EXIT_FAILURE);
     }
     m_product_list.push_back(Product("none", 0, "image_none.jpg"));
@@ -51,6 +52,25 @@ MainWindow::MainWindow(QWidget *parent) :
     m_score = 1000;
     m_acc_name = "TEST";
 #endif
+}
+
+void MainWindow::setupSpinBoxes()
+{
+    QList<QSpinBox*> spinBoxes = {
+        ui->quantityProduct1,
+        ui->quantityProduct2, 
+        ui->quantityProduct3,
+        ui->quantityProduct4,
+        ui->quantityProduct5
+    };
+
+    for(auto* spinBox : spinBoxes) {
+        spinBox->setMinimum(0);
+        spinBox->setMaximum(100000);
+        spinBox->setSingleStep(10);
+        spinBox->setValue(0);
+        spinBox->setAlignment(Qt::AlignCenter);
+    }
 }
 
 void MainWindow::setCurrentTab(int index) {
@@ -208,14 +228,13 @@ void MainWindow::readSocketSlot() {
     socketStream >> buffer;
 
     QString response = QString::fromStdString(buffer.toStdString());
-    if(m_process_list.isEmpty())
-        return;
+    if(m_process_list.isEmpty()) return;
     int mode = m_process_list.first();
     m_process_list.pop_front();
     if(mode == PROCESS_MODE::LOGIN) {
         if(response.left(5) == "SUCLI") {
             m_acc_name = ui->usernameLineEdit->text().trimmed();
-            m_score = response.mid(5).toInt();
+            m_score = response.mid(7).toInt();
             ui->grpMain->setEnabled(true);
             ui->btnSignIn->setText("Sign Out");
             showLog(QString("My score is %1").arg(m_score));
@@ -254,9 +273,13 @@ void MainWindow::readSocketSlot() {
     }
     else if(mode == PROCESS_MODE::GoRom) {
         if(response.left(5) == "READY") {
-            ui->player_name_2->setText(response.mid(5));
-            ui->btnStartPvP->setEnabled(true);
-            ui->roomStatus->setText("Ready to battle!");
+            QStringList parts = response.mid(5).split("|");
+            if(parts.size() == 2) {
+                ui->player_name_2->setText(parts[0]);
+                ui->player2_score->setText(parts[1]);
+                ui->btnStartPvP->setEnabled(true);
+                ui->roomStatus->setText("Ready to battle!");
+            }
         }
         else {
             showLog(response);
@@ -282,13 +305,10 @@ void MainWindow::readSocketSlot() {
                ui->roomStatus->setText("DRAW!");
             }
             ui->scoreInp->setText(QString::number(m_score));
-            ui->btnBackToMenu->setVisible(true);
+            ui->btnBackToMenu_Room->setVisible(true);
+            ui->btnBackToMenu_Room->setEnabled(true);
         }
     }
-}
-
-void MainWindow::on_btnBackToMenu_clicked() {
-    setCurrentTab(DISPLAY::MAIN);
 }
 
 void MainWindow::on_btnExitRoom_clicked() {
@@ -297,7 +317,6 @@ void MainWindow::on_btnExitRoom_clicked() {
         if(m_process_list.last() == PROCESS_MODE::GoRom)
             m_process_list.pop_back();
     }
-
     setCurrentTab(DISPLAY::MAIN);
 }
 
@@ -305,7 +324,6 @@ void MainWindow::discardSocket()
 {
     m_socket->deleteLater();
     m_socket = nullptr;
-
     showLog("Disconnected to Server!");
 }
 
@@ -386,9 +404,10 @@ void MainWindow::setupInRoom(int bet) {
     ui->btnStartPvP->setEnabled(false);
     ui->player_name_1->setText(m_acc_name);
     ui->player_name_2->setText("...");
-    ui->player1_score->setText("...");
+    ui->player1_score->setText(QString::number(m_score));
     ui->player2_score->setText("...");
-    ui->btnBackToMenu->setVisible(false);
+    ui->btnBackToMenu_Room->setVisible(true);
+    ui->btnBackToMenu_Room->setEnabled(true);
     sendToServer("GROOM" + QString::number(bet));
     m_process_list.push_back(PROCESS_MODE::GoRom);
 }
@@ -468,7 +487,7 @@ void MainWindow::on_btnSubmitG_clicked() {
 void MainWindow::on_btnSubmitDP_clicked() {
     QCheckBox* check[4] = {ui->check1_DP, ui->check2_DP, ui->check3_DP, ui->check4_DP};
     int cntCheck = 0;
-    int uncheckIndex;
+    int uncheckIndex = -1;
     for(int i = 0; i < 4; i++) {
         if(check[i]->isChecked())
             cntCheck++;
@@ -540,6 +559,8 @@ void MainWindow::setupME() {
     else
         m_solution_ME = 3;
     ui->choseME->setValue(1);
+    ui->btnBackToMenu_ME->setEnabled(true);
+    ui->btnBackToMenu_ME->setEnabled(true);
     setCurrentTab(DISPLAY::MOST_EXPENSIVE);
 }
 
@@ -569,6 +590,8 @@ void MainWindow::setupGrocery() {
     ui->quantityProduct3->setValue(0);
     ui->quantityProduct4->setValue(0);
     ui->quantityProduct5->setValue(0);
+    ui->btnBackToMenu_GC->setEnabled(true);
+    ui->btnBackToMenu_GC->setEnabled(true);
     setCurrentTab(DISPLAY::GROCERY);
 }
 
@@ -593,6 +616,8 @@ void MainWindow::setupDP() {
         check[i]->setChecked(false);
     }
     ui->rangeInp_DP->setText(QString("Given price: %1 thousand Dong").arg(m_product_list[indexList[m_index_DP]].price));
+    ui->btnBackToMenu_SP->setEnabled(true);
+    ui->btnBackToMenu_SP->setEnabled(true);
     setCurrentTab(DISPLAY::DANGER_PRICE);
 }
 
@@ -603,6 +628,8 @@ void MainWindow::setupSpinWheel()
     ui->textFinalBonus->clear();
     ui->btnSubmitLW->setEnabled(false);
     ui->btnSpinWheel->setEnabled(true);
+    ui->btnBackToMenu_LW->setEnabled(true);
+    ui->btnBackToMenu_LW->setEnabled(true);
     setCurrentTab(DISPLAY::SPIN_WHEEL);
 }
 
@@ -637,7 +664,7 @@ void MainWindow::setupTSC()
         m_solution_ME = 3;
     ui->totalPrice->setValue(0);
     ui->btnSubmitEndGame->setEnabled(false);
-    ui->btnBackToMenu2->setEnabled(false);
+    ui->btnBackToMenu_SC->setEnabled(false);
     setCurrentTab(DISPLAY::SHOW_CASE);
 }
 
@@ -682,7 +709,6 @@ void MainWindow::on_btnSpinWheel_clicked()
             ui->btnSubmitLW->setEnabled(true);
         }
     }
-
 }
 
 void MainWindow::on_btnSubmitLW_clicked()
@@ -693,14 +719,13 @@ void MainWindow::on_btnSubmitLW_clicked()
         m_score += bonus;
         ui->scoreInp->setText(QString::number(m_score));
     }
-
     setupTSC();
 }
 
 void MainWindow::on_btnSubmitEndGame_clicked()
 {
     ui->btnSubmitEndGame->setEnabled(false);
-    ui->btnBackToMenu2->setEnabled(true);
+    ui->btnBackToMenu_SC->setEnabled(true);
 
     int totalPrice = ui->totalPrice->text().toInt();
     int price1 = ui->label_show_case_price1->text().toInt();
@@ -712,7 +737,7 @@ void MainWindow::on_btnSubmitEndGame_clicked()
         ui->label_show_case_price1->show();
         ui->label_show_case_price2->show();
         ui->label_show_case_price3->show();
-        ui->btnBackToMenu2->setEnabled(true);
+        ui->btnBackToMenu_SC->setEnabled(true);
         if (m_p2p_mode) {
             m_p2p_score += 2000;
         } else {
@@ -723,7 +748,7 @@ void MainWindow::on_btnSubmitEndGame_clicked()
         ui->label_show_case_price1->show();
         ui->label_show_case_price2->show();
         ui->label_show_case_price3->show();
-        ui->btnBackToMenu2->setEnabled(true);
+        ui->btnBackToMenu_SC->setEnabled(true);
     }
 
     if(m_p2p_mode) {
@@ -742,7 +767,7 @@ void MainWindow::on_btnSubmitEndGame_clicked()
 
 }
 
-void MainWindow::on_totalPrice_valueChanged(int arg1)
+void MainWindow::on_totalPrice_valueChanged()
 {
     if (ui->totalPrice->text().toInt() != 0) {
         ui->btnSubmitEndGame->setEnabled(true);
@@ -751,12 +776,33 @@ void MainWindow::on_totalPrice_valueChanged(int arg1)
     }
 }
 
-void MainWindow::on_btnBackToMenu2_clicked()
+void MainWindow::on_btnBackToMenu_ME_clicked() {
+    setCurrentTab(DISPLAY::MAIN);
+}
+
+void MainWindow::on_btnBackToMenu_GC_clicked() {
+    setCurrentTab(DISPLAY::MAIN);
+}
+
+void MainWindow::on_btnBackToMenu_SP_clicked() {
+    setCurrentTab(DISPLAY::MAIN);
+}
+
+void MainWindow::on_btnBackToMenu_LW_clicked() {
+    setCurrentTab(DISPLAY::MAIN);
+}
+
+void MainWindow::on_btnBackToMenu_SC_clicked()
 {
     setCurrentTab(DISPLAY::MAIN);
 }
 
-void MainWindow::on_btnBackToMenu3_clicked()
+void MainWindow::on_btnBackToMenu_Room_clicked()
+{
+    setCurrentTab(DISPLAY::MAIN);
+}
+
+void MainWindow::on_btnBackToMenu_Ranking_clicked()
 {
     setCurrentTab(DISPLAY::MAIN);
 }

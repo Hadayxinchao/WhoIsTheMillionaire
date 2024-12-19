@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
     else
     {
-        QMessageBox::critical(this,"SERVER",QString("Unable to start the server: %1.").arg(m_server->errorString()));
+        QMessageBox::critical(this,"SERVER", QString("Unable to start the server: %1.").arg(m_server->errorString()));
         exit(EXIT_FAILURE);
     }
 
@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QFile file(ACC_FILE_NAME);
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
-        QMessageBox::critical(this, "SERVER",QString("Cannot open " + QString(ACC_FILE_NAME)));
+        QMessageBox::critical(this, "SERVER", QString("Cannot open " + QString(ACC_FILE_NAME)));
         exit(EXIT_FAILURE);
     }
 
@@ -73,17 +73,15 @@ MainWindow::~MainWindow()
         }
         file.close();
     }
-    else
-        QMessageBox::critical(this,"SERVER",QString("Cannot create accounts.txt"));
+    else QMessageBox::critical(this,"SERVER", QString("Cannot create accounts.txt"));
 
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         foreach (RoomInfo *var, m_room_list[i]) {
             delete var;
         }
     }
 
-    foreach (ClientInfo* cli, m_client_set)
-    {
+    foreach (ClientInfo* cli, m_client_set) {
         cli->sockfd->close();
         cli->sockfd->deleteLater();
         delete cli;
@@ -128,16 +126,16 @@ void MainWindow::processLogIn(QTcpSocket *socket, ClientInfo *client, QString &d
         }
     }
     if(acc == nullptr) {
-        sendMessage(socket, "ID or password is not correct.");
+        sendMessage(socket, "LOGF1: ID or password is not correct.");
         return;
     }
     if(acc->loginStatus) {
-        sendMessage(socket, "Account has login on other client.");
+        sendMessage(socket, "LOGF2: Account has login on other client.");
         return;
     }
     client->acc = acc;
     acc->loginStatus = true;
-    sendMessage(socket, "SUCLI" + QString::number(acc->score));
+    sendMessage(socket, "SUCLI: " + QString::number(acc->score));
     showLog(QString("%1 :: Login with account ").arg(socket->socketDescriptor()) + acc->id);
     return;
 }
@@ -161,7 +159,8 @@ void MainWindow::processSignUp(QTcpSocket* socket, ClientInfo* client, QString& 
             return;
         }
     }
-    acc = new Account(lstr[0], lstr[1], "5000");
+    // New user will have 10000 score
+    acc = new Account(lstr[0], lstr[1], "10000");
     m_acc_set.push_back(acc);
     sendMessage(socket, "SIGNUP SUCCESS");
     showLog(QString("New account created: %1").arg(acc->id));
@@ -257,8 +256,8 @@ void MainWindow::readSocket()
             RoomInfo *room = m_room_list[type].last();
             room->p2 = client;
             client->room = room;
-            sendMessage(room->p1->sockfd, "READY" + client->acc->id);
-            sendMessage(socket, "READY" + room->p1->acc->id);
+            sendMessage(room->p1->sockfd, "READY" + client->acc->id + "|" + QString::number(client->acc->score));
+            sendMessage(socket, "READY" + room->p1->acc->id + "|" + QString::number(room->p1->acc->score));
             showLog(room->p1->acc->id + " vs " + client->acc->id + " in room " + data);
         }
     }

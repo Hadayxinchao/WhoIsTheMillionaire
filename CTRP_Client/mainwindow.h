@@ -38,7 +38,6 @@ struct Product
 };
 
 class MainWindow : public QMainWindow
-
 {
     Q_OBJECT
 
@@ -59,11 +58,15 @@ private slots:
     void on_btnBET200_clicked();
     void on_btnBET500_clicked();
     void on_btnStartPvP_clicked();
-    void on_btnBackToMenu_clicked();
     void on_btnExitRoom_clicked();
-    void on_btnBackToMenu2_clicked();
     void on_btnSubmitLW_clicked();
-    void on_btnBackToMenu3_clicked();
+    void on_btnBackToMenu_ME_clicked();
+    void on_btnBackToMenu_GC_clicked();
+    void on_btnBackToMenu_SP_clicked();
+    void on_btnBackToMenu_LW_clicked();
+    void on_btnBackToMenu_SC_clicked();
+    void on_btnBackToMenu_Room_clicked();
+    void on_btnBackToMenu_Ranking_clicked();
     void on_btnRegister_clicked();
     void on_btnCancelRegister_clicked();
     void on_btnViewRank_clicked();
@@ -78,7 +81,7 @@ private slots:
     void sendToServer(QString str);
     void setCurrentTab(int index);
     void on_goRegister_clicked();
-    void on_totalPrice_valueChanged(int arg1);
+    void on_totalPrice_valueChanged();
 
 private:
     void setupME();
@@ -86,6 +89,7 @@ private:
     void setupDP();
     void setupSpinWheel();
     void setupTSC();
+    void setupSpinBoxes();
     int randomProductIndex();
     void setupInRoom(int bet);
 
