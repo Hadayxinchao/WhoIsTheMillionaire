@@ -189,6 +189,30 @@ void MainWindow::processViewRank(QTcpSocket* socket)
     sendMessage(socket, rankList);
 }
 
+void MainWindow::processViewCurrentPlayers(QTcpSocket* socket)
+{
+    // Make a copy of the accounts set
+    QVector<Account*> sorted_acc_set = m_acc_set;
+
+    // Sort the accounts in descending order of scores
+    std::sort(sorted_acc_set.begin(), sorted_acc_set.end(), [](Account* a, Account* b){
+        return a->score > b->score;
+    });
+
+    QString onlineList;
+
+    // Prepare the string containing top 10 or fewer users
+    for(int i = 0; i < qMin(10, sorted_acc_set.size()); i++)
+    {   
+        if (sorted_acc_set[i]->loginStatus == true) {
+            onlineList += sorted_acc_set[i]->id + "|";
+        }
+    }
+
+    // Send the current online players list back to the client
+    sendMessage(socket, onlineList);
+}
+
 void MainWindow::readSocket()
 {
     QTcpSocket* socket = reinterpret_cast<QTcpSocket*>(sender());
@@ -307,6 +331,43 @@ void MainWindow::readSocket()
         showLog(QString("%1 :: Save score with account ").arg(socket->socketDescriptor()) + client->acc->id);
         client->acc->score = data.toInt();
     }
+
+    else if(header == "REFPL") {
+        processViewCurrentPlayers(socket);
+    }
+
+    else if(header == "INVIT") {
+        ClientInfo *invited = nullptr;
+        for(int i = 0; i < m_client_set.size(); i++) {
+            if(m_client_set[i]->acc != nullptr && m_client_set[i]->acc->id == data) {
+                invited = m_client_set[i];
+                break;
+            }
+        }
+        if(invited != nullptr) {
+            sendMessage(invited->sockfd, "INVIT" + client->acc->id);
+        }
+    }
+
+    else if(header == "ACCRE") {
+        Account *acc = nullptr;
+        for(int i = 0; i < m_acc_set.size(); i++) {
+            
+            if(m_acc_set[i]->id == data) {
+                acc = m_acc_set[i];
+                break;
+            }
+        }
+        if(acc != nullptr) {
+            sendMessage(socket, "ACCRE" + acc->id + "|" + acc->pwd + "|" + QString::number(acc->score));
+        }
+    }
+
+    else if(header == "SPWHE") {
+        int score = data.toInt();
+        client->acc->score += score;
+        sendMessage(socket, "SPWHE" + QString::number(client->acc->score));
+    }    
 }
 
 void MainWindow::discardSocket()

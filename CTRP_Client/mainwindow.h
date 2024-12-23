@@ -73,6 +73,7 @@ private slots:
     void on_btnSpinWheel_clicked();
     void on_btnSubmitEndGame_clicked();
     void on_btnClear_clicked();
+    void on_btnRefreshPlayers_clicked();
 
     void readSocketSlot();
     void discardSocket();
@@ -82,6 +83,9 @@ private slots:
     void setCurrentTab(int index);
     void on_goRegister_clicked();
     void on_totalPrice_valueChanged();
+    void initOnlinePlayersTable();
+    void updateOnlinePlayers(const QStringList& players);
+    void sendInvitation(const QString& player);
 
 private:
     void setupME();
@@ -118,6 +122,7 @@ enum PROCESS_MODE {
     GoRom,
     ReadyPvP,
     FinishPvP,
+    CurrentPlayers
 
 };
 

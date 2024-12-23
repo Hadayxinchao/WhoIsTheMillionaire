@@ -87,6 +87,7 @@ private:
     void processLogIn(QTcpSocket *socket, ClientInfo *client, QString &data);
     void processSignUp(QTcpSocket *socket, ClientInfo *client, QString &data);
     void processViewRank(QTcpSocket *socket);
+    void processViewCurrentPlayers(QTcpSocket *socket);
 private:
     Ui::MainWindow *ui;
 

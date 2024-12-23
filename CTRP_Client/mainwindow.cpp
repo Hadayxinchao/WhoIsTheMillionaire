@@ -309,6 +309,10 @@ void MainWindow::readSocketSlot() {
             ui->btnBackToMenu_Room->setEnabled(true);
         }
     }
+    else if(mode == PROCESS_MODE::CurrentPlayers) {
+        QStringList lstr = response.split('|');
+        updateOnlinePlayers(lstr);
+    }
 }
 
 void MainWindow::on_btnExitRoom_clicked() {
@@ -810,4 +814,45 @@ void MainWindow::on_btnBackToMenu_Ranking_clicked()
 void MainWindow::on_btnClear_clicked()
 {
     ui->logConsole->clear();
+}
+
+void MainWindow::initOnlinePlayersTable() {
+    ui->onlinePlayersTable->setColumnWidth(0, 120);
+    ui->onlinePlayersTable->setColumnWidth(1, 80);
+    ui->onlinePlayersTable->setColumnWidth(2, 80);
+    ui->onlinePlayersTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+void MainWindow::updateOnlinePlayers(const QStringList& players) {
+    ui->onlinePlayersTable->setRowCount(0);
+    for(const QString& player : players) {
+        int row = ui->onlinePlayersTable->rowCount();
+        ui->onlinePlayersTable->insertRow(row);
+        
+        // Username
+        QTableWidgetItem* nameItem = new QTableWidgetItem(player);
+        ui->onlinePlayersTable->setItem(row, 0, nameItem);
+        
+        // Status 
+        QTableWidgetItem* statusItem = new QTableWidgetItem("Online");
+        ui->onlinePlayersTable->setItem(row, 1, statusItem);
+        
+        // Invite Button
+        QPushButton* inviteBtn = new QPushButton("Invite");
+        ui->onlinePlayersTable->setCellWidget(row, 2, inviteBtn);
+        
+        connect(inviteBtn, &QPushButton::clicked, this, [this, player]() {
+            sendInvitation(player);
+        });
+    }
+}
+
+void MainWindow::sendInvitation(const QString& player) {
+    // Send invitation request to server
+    sendToServer("INVIT" + player);
+}
+
+void MainWindow::on_btnRefreshPlayers_clicked() {
+    sendToServer("REFPL");
+    m_process_list.push_back(PROCESS_MODE::CurrentPlayers);
 }
