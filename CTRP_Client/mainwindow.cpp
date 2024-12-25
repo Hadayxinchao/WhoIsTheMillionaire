@@ -8,8 +8,106 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <fstream>
+#include <curl/curl.h>
+#include <json/json.h>
+#include <iostream>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QUrl>
 
 // #define TESTING
+
+// Callback để ghi dữ liệu từ API vào chuỗi
+size_t MainWindow::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+// Hàm lấy dữ liệu từ DummyJSON API
+std::string MainWindow::fetchProductsData() {
+    CURL* curl;
+    CURLcode res;
+    std::string readBuffer;
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "https://dummyjson.com/products?limit=30");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res != CURLE_OK) {
+            std::cerr << "cURL Error: " << curl_easy_strerror(res) << std::endl;
+            return "";
+        }
+    }
+    return readBuffer;
+}
+
+void MainWindow::saveProductsToFile(const std::string& jsonData) {
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(jsonData, root)) {
+        showLog("Failed to parse JSON data!");
+        return;
+    }
+
+    const Json::Value products = root["products"];
+
+    // Read product list:
+    
+    QString _name, _price, _path, _id;
+
+    for (unsigned int i = 0; i < products.size(); ++i) {
+        QString name = QString::fromStdString(products[i]["title"].asString());
+        QString price = QString::fromStdString(products[i]["price"].asString());
+        QString imgPath = QString::fromStdString(products[i]["thumbnail"].asString());
+        QString id = QString::fromStdString(products[i]["id"].asString());
+
+        _id = id;
+        _name = name;
+        _price = price;
+        _path = imgPath;
+        if(_id.isEmpty() || _name.isEmpty() || _price.isEmpty() || _path.isEmpty())
+            break;
+        m_product_list.push_back(Product(_name, qRound(_price.toDouble()), _path));
+    }
+}
+
+void MainWindow::loadImageToLabel(QLabel *label, const QString &imgPath) {
+    if (imgPath.startsWith("http")) { 
+        // Nếu là URL
+        QNetworkRequest request((QUrl(imgPath))); 
+        QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+        
+        connect(manager, &QNetworkAccessManager::finished, this, [=](QNetworkReply *reply) {
+            if (reply->error() == QNetworkReply::NoError) {
+                QByteArray imageData = reply->readAll();
+                QPixmap pixmap;
+                if (pixmap.loadFromData(imageData)) {
+                    label->setPixmap(pixmap.scaled(200, 200, Qt::KeepAspectRatio));
+                } else {
+                    showLog("Failed to load image from data");
+                }
+            } else {
+                showLog("Network error: " + reply->errorString());
+            }
+            reply->deleteLater();
+            manager->deleteLater();
+        });
+
+        manager->get(request);
+    } else {
+        QPixmap pixmap(imgPath);
+        if (!pixmap.isNull()) {
+            label->setPixmap(pixmap.scaled(200, 200, Qt::KeepAspectRatio));
+        } else {
+            showLog("Failed to load local image");
+        }
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,29 +121,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->grpSignIn->setEnabled(false);
     setCurrentTab(DISPLAY::MAIN);
 
-    // Read product list:
-    QFile file(":/resources/Products/products_list.txt");
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::critical(this, "SERVER", QString("Cannot open products_list.txt"));
-        exit(EXIT_FAILURE);
+    // Fetch data from DummyJSON API
+    std::string data = fetchProductsData();
+
+    if (!data.empty()) {
+        saveProductsToFile(data);
+    } else {
+        showLog("Failed to fetch product data!");
     }
-    m_product_list.push_back(Product("none", 0, "image_none.jpg"));
-    QTextStream in(&file);
-    QString _name, _price, _path, _id;
-    while (!in.atEnd())
-    {
-        _id = in.readLine();
-        _name = in.readLine();
-        _price = in.readLine();
-        _path = in.readLine();
-        if(_id.isEmpty() || _name.isEmpty() || _price.isEmpty() || _path.isEmpty())
-            break;
-        m_product_list.push_back(Product(_name, _price.toInt(), _path));
-        if (in.status() == QTextStream::ReadCorruptData)
-            break;
-    }
-    file.close();
 
 #ifdef TESTING
     ui->grpMain->setEnabled(true);
@@ -477,11 +560,14 @@ void MainWindow::on_btnSubmitME_clicked() {
             m_p2p_score += 500;
         }
         else {
+            m_single_score += 500;
+            ui->singleScore_GC->setText(QString::number(m_single_score) + " points");
             m_score += 500;
             ui->scoreInp->setText(QString::number(m_score));
         }
     }
     else {
+        ui->singleScore_GC->setText(QString::number(m_single_score) + " points");
         QMessageBox::information(this, "RESULT", QString("Wish you luck next time!"));
     }
     setupGrocery();
@@ -503,11 +589,14 @@ void MainWindow::on_btnSubmitG_clicked() {
             m_p2p_score += 500;
         }
         else {
+            m_single_score += 500;
+            ui->singleScore_DP->setText(QString::number(m_single_score) + " points");
             m_score += 500;
             ui->scoreInp->setText(QString::number(m_score));
         }
     }
     else {
+        ui->singleScore_DP->setText(QString::number(m_single_score) + " points");
         QMessageBox::information(this, "RESULT", QString("Your purchase: %1\nWish you luck next time!").arg(userTotal));
     }
     setupDP();
@@ -544,11 +633,14 @@ void MainWindow::on_btnSubmitDP_clicked() {
             m_p2p_score += 500;
         }
         else {
+            m_single_score += 500;
+            ui->singleScore_SC->setText(QString::number(m_single_score) + " points");
             m_score += 500;
             ui->scoreInp->setText(QString::number(m_score));
         }
     }
     else {
+        ui->singleScore_SC->setText(QString::number(m_single_score) + " points");
         QMessageBox::information(this, "RESULT", QString("Wish you luck next time!"));
     }
     setupSpinWheel();
@@ -585,28 +677,32 @@ void MainWindow::setupME() {
     int id1 = randomProductIndex();
     int id2 = randomProductIndex();
     int id3 = randomProductIndex();
-    while(id2 == id1) {
+    while (id2 == id1) {
         id2 = randomProductIndex();
     }
-    while(id3 == id1 || id3 == id2) {
+    while (id3 == id1 || id3 == id2) {
         id3 = randomProductIndex();
     }
 
-    ui->label_pic1->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[id1].imgPath).scaled(200, 200, Qt::KeepAspectRatio));
+    // Thiết lập ảnh và tên sản phẩm
+    loadImageToLabel(ui->label_pic1, m_product_list[id1].imgPath);
     ui->label_name1->setText(m_product_list[id1].name);
-    ui->label_pic2->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[id2].imgPath).scaled(200, 200, Qt::KeepAspectRatio));
+
+    loadImageToLabel(ui->label_pic2, m_product_list[id2].imgPath);
     ui->label_name2->setText(m_product_list[id2].name);
-    ui->label_pic3->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[id3].imgPath).scaled(200, 200, Qt::KeepAspectRatio));
+
+    loadImageToLabel(ui->label_pic3, m_product_list[id3].imgPath);
     ui->label_name3->setText(m_product_list[id3].name);
-    if(m_product_list[id1].price > m_product_list[id2].price && m_product_list[id1].price > m_product_list[id3].price)
+
+    // Tìm sản phẩm có giá cao nhất
+    if (m_product_list[id1].price > m_product_list[id2].price && m_product_list[id1].price > m_product_list[id3].price)
         m_solution_ME = 1;
-    else if(m_product_list[id2].price > m_product_list[id1].price && m_product_list[id2].price > m_product_list[id3].price)
+    else if (m_product_list[id2].price > m_product_list[id1].price && m_product_list[id2].price > m_product_list[id3].price)
         m_solution_ME = 2;
     else
         m_solution_ME = 3;
+
     ui->choseME->setValue(1);
-    ui->btnBackToMenu_ME->setEnabled(true);
-    ui->btnBackToMenu_ME->setEnabled(true);
     setCurrentTab(DISPLAY::MOST_EXPENSIVE);
 }
 
@@ -624,20 +720,20 @@ void MainWindow::setupGrocery() {
     int amount;
     QLabel* pic[5] = {ui->labelG_pic1, ui->labelG_pic2, ui->labelG_pic3, ui->labelG_pic4, ui->labelG_pic5};
     QLabel* name[5] = {ui->labelG_name1, ui->labelG_name2, ui->labelG_name3, ui->labelG_name4, ui->labelG_name5};
-    for(int i = 0; i < 5; i++) {
-        amount = (rand() % 3) + 1;
-        m_total_G += (amount * m_product_list[m_ID_G[i]].price);
-        pic[i]->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[m_ID_G[i]].imgPath).scaled(120, 120, Qt::KeepAspectRatio));
-        name[i]->setText(m_product_list[m_ID_G[i]].name);
-    }
-    ui->rangeInp->setText(QString("From %1 to %2 thousand Dong").arg(m_total_G-2000).arg(m_total_G+2000));
+    for (int i = 0; i < 5; i++) {
+    amount = (rand() % 3) + 1;
+    m_total_G += (amount * m_product_list[m_ID_G[i]].price);
+
+    loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
+    
+    name[i]->setText(m_product_list[m_ID_G[i]].name);
+}
+    ui->rangeInp->setText(QString("From %1 to %2 USD").arg(m_total_G-2000).arg(m_total_G+2000));
     ui->quantityProduct1->setValue(0);
     ui->quantityProduct2->setValue(0);
     ui->quantityProduct3->setValue(0);
     ui->quantityProduct4->setValue(0);
     ui->quantityProduct5->setValue(0);
-    ui->btnBackToMenu_GC->setEnabled(true);
-    ui->btnBackToMenu_GC->setEnabled(true);
     setCurrentTab(DISPLAY::GROCERY);
 }
 
@@ -657,13 +753,11 @@ void MainWindow::setupDP() {
     QLabel* name[4] = {ui->name1_DP, ui->name2_DP, ui->name3_DP, ui->name4_DP};
     QCheckBox* check[4] = {ui->check1_DP, ui->check2_DP, ui->check3_DP, ui->check4_DP};
     for(int i = 0; i < 4; i++) {
-        pic[i]->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[indexList[i]].imgPath).scaled(150, 150, Qt::KeepAspectRatio));
+        loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
         name[i]->setText(m_product_list[indexList[i]].name);
         check[i]->setChecked(false);
     }
-    ui->rangeInp_DP->setText(QString("Given price: %1 thousand Dong").arg(m_product_list[indexList[m_index_DP]].price));
-    ui->btnBackToMenu_SP->setEnabled(true);
-    ui->btnBackToMenu_SP->setEnabled(true);
+    ui->rangeInp_DP->setText(QString("Given price: %1 USD").arg(m_product_list[indexList[m_index_DP]].price));
     setCurrentTab(DISPLAY::DANGER_PRICE);
 }
 
@@ -679,38 +773,34 @@ void MainWindow::setupSpinWheel()
     setCurrentTab(DISPLAY::SPIN_WHEEL);
 }
 
-void MainWindow::setupTSC()
-{
+void MainWindow::setupTSC() {
     int id1 = randomProductIndex();
     int id2 = randomProductIndex();
     int id3 = randomProductIndex();
-    while(id2 == id1) {
-        id2 = randomProductIndex();
-    }
-    while(id3 == id1 || id3 == id2) {
-        id3 = randomProductIndex();
+    while (id2 == id1) id2 = randomProductIndex();
+    while (id3 == id1 || id3 == id2) id3 = randomProductIndex();
+
+    int productIDs[3] = {id1, id2, id3};
+    QLabel* picLabels[3] = {ui->label_show_case_pic1, ui->label_show_case_pic2, ui->label_show_case_pic3};
+    QLabel* nameLabels[3] = {ui->label_show_case_name1, ui->label_show_case_name2, ui->label_show_case_name3};
+    QLabel* priceLabels[3] = {ui->label_show_case_price1, ui->label_show_case_price2, ui->label_show_case_price3};
+
+    for (int i = 0; i < 3; ++i) {
+        loadImageToLabel(picLabels[i], m_product_list[productIDs[i]].imgPath);
+
+        nameLabels[i]->setText(m_product_list[productIDs[i]].name);
+        priceLabels[i]->setText(QString::number(m_product_list[productIDs[i]].price));
+        priceLabels[i]->hide(); // Ẩn giá
     }
 
-    ui->label_show_case_pic1->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[id1].imgPath).scaled(200, 200, Qt::KeepAspectRatio));
-    ui->label_show_case_price1->setText(m_product_list[id1].name);
-    ui->label_show_case_price1->setText(QString::number(m_product_list[id1].price));
-    ui->label_show_case_price1->hide();
-    ui->label_show_case_pic2->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[id2].imgPath).scaled(200, 200, Qt::KeepAspectRatio));
-    ui->label_show_case_price2->setText(QString::number(m_product_list[id2].price));
-    ui->label_show_case_price2->hide();
-    ui->label_show_case_pic3->setPixmap(QPixmap(":/resources/Products/images/" + m_product_list[id3].imgPath).scaled(200, 200, Qt::KeepAspectRatio));
-    ui->label_show_case_name3->setText(m_product_list[id3].name);
-    ui->label_show_case_price3->setText(QString::number(m_product_list[id3].price));
-    ui->label_show_case_price3->hide();
-    if(m_product_list[id1].price > m_product_list[id2].price && m_product_list[id1].price > m_product_list[id3].price)
+    if (m_product_list[id1].price > m_product_list[id2].price && m_product_list[id1].price > m_product_list[id3].price)
         m_solution_ME = 1;
-    else if(m_product_list[id2].price > m_product_list[id1].price && m_product_list[id2].price > m_product_list[id3].price)
+    else if (m_product_list[id2].price > m_product_list[id1].price && m_product_list[id2].price > m_product_list[id3].price)
         m_solution_ME = 2;
     else
         m_solution_ME = 3;
+
     ui->totalPrice->setValue(0);
-    ui->btnSubmitEndGame->setEnabled(false);
-    ui->btnBackToMenu_SC->setEnabled(false);
     setCurrentTab(DISPLAY::SHOW_CASE);
 }
 
@@ -771,7 +861,6 @@ void MainWindow::on_btnSubmitLW_clicked()
 void MainWindow::on_btnSubmitEndGame_clicked()
 {
     ui->btnSubmitEndGame->setEnabled(false);
-    ui->btnBackToMenu_SC->setEnabled(true);
 
     int totalPrice = ui->totalPrice->text().toInt();
     int price1 = ui->label_show_case_price1->text().toInt();
@@ -783,7 +872,6 @@ void MainWindow::on_btnSubmitEndGame_clicked()
         ui->label_show_case_price1->show();
         ui->label_show_case_price2->show();
         ui->label_show_case_price3->show();
-        ui->btnBackToMenu_SC->setEnabled(true);
         if (m_p2p_mode) {
             m_p2p_score += 2000;
         } else {
@@ -794,7 +882,6 @@ void MainWindow::on_btnSubmitEndGame_clicked()
         ui->label_show_case_price1->show();
         ui->label_show_case_price2->show();
         ui->label_show_case_price3->show();
-        ui->btnBackToMenu_SC->setEnabled(true);
     }
 
     if(m_p2p_mode) {
@@ -808,6 +895,7 @@ void MainWindow::on_btnSubmitEndGame_clicked()
         setCurrentTab(DISPLAY::ROOM);
     }
     else {
+        setCurrentTab(DISPLAY::MAIN);
         sendToServer("ENDGA" + QString::number(m_score));
     }
 
@@ -833,8 +921,11 @@ void MainWindow::on_btnBackToMenu_ME_clicked() {
             sendToServer("SUREN");
             setCurrentTab(DISPLAY::MAIN);
         } else return;
-    } else 
+    } else {
+        m_single_score = 0;
         setCurrentTab(DISPLAY::MAIN);
+    }
+
 }
 
 void MainWindow::on_btnBackToMenu_GC_clicked() {
@@ -848,8 +939,11 @@ void MainWindow::on_btnBackToMenu_GC_clicked() {
             sendToServer("SUREN");
             setCurrentTab(DISPLAY::MAIN);
         } else return;
-    } else 
+    } else {
+        m_single_score = 0;
         setCurrentTab(DISPLAY::MAIN);
+    }
+        
     
 }
 
@@ -864,8 +958,11 @@ void MainWindow::on_btnBackToMenu_SP_clicked() {
             sendToServer("SUREN");
             setCurrentTab(DISPLAY::MAIN);
         } else return;
-    } else 
+    } else  {
+        m_single_score = 0;
         setCurrentTab(DISPLAY::MAIN);
+    }
+        
 }
 
 void MainWindow::on_btnBackToMenu_LW_clicked() {
@@ -879,17 +976,20 @@ void MainWindow::on_btnBackToMenu_LW_clicked() {
             sendToServer("SUREN");
             setCurrentTab(DISPLAY::MAIN);
         } else return;
-    } else 
-        setCurrentTab(DISPLAY::MAIN);
+    } else {
+        m_single_score = 0;
+        setCurrentTab(DISPLAY::MAIN);}
 }
 
 void MainWindow::on_btnBackToMenu_SC_clicked()
 {
+    m_single_score = 0;
     setCurrentTab(DISPLAY::MAIN);
 }
 
 void MainWindow::on_btnBackToMenu_Room_clicked()
 {
+    m_single_score = 0;
     setCurrentTab(DISPLAY::MAIN);
 }
 

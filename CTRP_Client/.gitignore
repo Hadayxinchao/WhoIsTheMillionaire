@@ -1,0 +1,10 @@
+ui_mainwindow.h
+qrc_resource.cpp
+qrc_resource.o
+moc_predefs.h
+moc_mainwindow.cpp
+moc_mainwindow.o
+mainwindow.o
+main.o
+Makefile
+CRTP_Client.app/

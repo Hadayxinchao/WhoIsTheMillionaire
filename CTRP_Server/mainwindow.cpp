@@ -36,30 +36,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             break;
     }
     file.close();
-
-//    // Read product list:
-//    QFile file1(":/resources/Products/products_list.txt");
-//    if (!file1.open(QFile::ReadOnly | QFile::Text))
-//    {
-//        QMessageBox::critical(this, "SERVER",QString("Cannot open products_list.txt"));
-//        exit(EXIT_FAILURE);
-//    }
-//    m_product_list.push_back(Product("none", 0, "image_none.jpg"));
-//    QTextStream in1(&file);
-//    QString _name, _price, _path, _id;
-//    while (!in1.atEnd())
-//    {
-//        _id = in1.readLine();
-//        _name = in1.readLine();
-//        _price = in1.readLine();
-//        _path = in1.readLine();
-//        if(_id.isEmpty() || _name.isEmpty() || _price.isEmpty() || _path.isEmpty())
-//            break;
-//        m_product_list.push_back(Product(_name, _price.toInt(), _path));
-//        if (in1.status() == QTextStream::ReadCorruptData)
-//            break;
-//    }
-//    file1.close();
 }
 
 MainWindow::~MainWindow()

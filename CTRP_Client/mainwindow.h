@@ -88,6 +88,10 @@ private slots:
     void sendInvitation(const QString& player);
 
 private:
+    std::string fetchProductsData();
+    void saveProductsToFile(const std::string& jsonData);
+    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+    void loadImageToLabel(QLabel* label, const QString& imgPath);    
     void setupME();
     void setupGrocery();
     void setupDP();
@@ -110,6 +114,7 @@ private:
     int m_solution_ME;
     int m_total_G;
     int m_ID_G[5];
+    int m_single_score;
     int m_p2p_score;
     int m_bet;
     int m_index_DP;

@@ -298,7 +298,7 @@
             </layout>
             <widget class="QPushButton" name="btnBackToMenu_ME">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -310,6 +310,20 @@
               </property>
               <property name="text">
                 <string>Exit Game</string>
+              </property>
+            </widget>
+            <widget class="QLabel" name="singleScore_ME">
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
@@ -641,7 +655,7 @@
             </layout>
             <widget class="QPushButton" name="btnBackToMenu_GC">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -653,6 +667,20 @@
               </property>
               <property name="text">
                 <string>Exit Game</string>
+              </property>
+            </widget>
+            <widget class="QLabel" name="singleScore_GC">
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
@@ -1047,7 +1075,7 @@
             </widget>
             <widget class="QPushButton" name="btnBackToMenu_SP">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -1059,6 +1087,21 @@
               </property>
               <property name="text">
                 <string>Exit Game</string>
+              </property>
+            </widget>
+
+            <widget class="QLabel" name="singleScore_DP">
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
@@ -1561,7 +1604,7 @@
             </widget>
             <widget class="QPushButton" name="btnBackToMenu_SC">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -1572,7 +1615,22 @@
                 </rect>
               </property>
               <property name="text">
-                <string>Back to Menu</string>
+                <string>Exit game</string>
+              </property>
+            </widget>
+
+            <widget class="QLabel" name="singleScore_SC">
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
