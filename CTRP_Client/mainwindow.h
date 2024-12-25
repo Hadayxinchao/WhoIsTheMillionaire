@@ -54,9 +54,9 @@ private slots:
     void on_btnSubmitME_clicked();
     void on_btnSubmitG_clicked();
     void on_btnSubmitDP_clicked();
-    void on_btnBET100_clicked();
-    void on_btnBET200_clicked();
-    void on_btnBET500_clicked();
+    void on_btnBET1000_clicked();
+    void on_btnBET2000_clicked();
+    void on_btnBET5000_clicked();
     void on_btnStartPvP_clicked();
     void on_btnExitRoom_clicked();
     void on_btnSubmitLW_clicked();
@@ -105,6 +105,8 @@ private:
     QList<int> m_process_list;
     QVector<Product> m_product_list;
     bool m_p2p_mode;
+    bool m_has_room = false;
+    bool in_pvp = false;
     int m_solution_ME;
     int m_total_G;
     int m_ID_G[5];
@@ -122,7 +124,6 @@ enum PROCESS_MODE {
     GoRom,
     ReadyPvP,
     FinishPvP,
-    CurrentPlayers
 
 };
 

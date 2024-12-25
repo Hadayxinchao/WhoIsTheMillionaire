@@ -110,7 +110,7 @@ void MainWindow::appendToSocketList(QTcpSocket* socket)
 
 ClientInfo* MainWindow::findClient(QTcpSocket *sock, int &i) {
     for(i = 0; i < m_client_set.size(); i++){
-        if(m_client_set[i]->sockfd== sock)
+        if(m_client_set[i]->sockfd == sock)
             return m_client_set[i];
     }
     return nullptr;
@@ -189,27 +189,29 @@ void MainWindow::processViewRank(QTcpSocket* socket)
     sendMessage(socket, rankList);
 }
 
-void MainWindow::processViewCurrentPlayers(QTcpSocket* socket)
+void MainWindow::processViewCurrentPlayers(QTcpSocket* socket, QString current_player_id)
 {
-    // Make a copy of the accounts set
     QVector<Account*> sorted_acc_set = m_acc_set;
 
-    // Sort the accounts in descending order of scores
     std::sort(sorted_acc_set.begin(), sorted_acc_set.end(), [](Account* a, Account* b){
         return a->score > b->score;
     });
 
-    QString onlineList;
+    QString onlineList = "REFPL" + current_player_id + "|";
 
-    // Prepare the string containing top 10 or fewer users
     for(int i = 0; i < qMin(10, sorted_acc_set.size()); i++)
     {   
-        if (sorted_acc_set[i]->loginStatus == true) {
+        if (sorted_acc_set[i]->loginStatus == true && sorted_acc_set[i]->id != current_player_id) {
             onlineList += sorted_acc_set[i]->id + "|";
         }
     }
-
-    // Send the current online players list back to the client
+    
+    // Remove last separator if exists
+    if (onlineList.endsWith('|')) {
+        onlineList.chop(1);
+    }
+    
+    showLog(onlineList);
     sendMessage(socket, onlineList);
 }
 
@@ -261,11 +263,11 @@ void MainWindow::readSocket()
 
     else if(header == "GROOM") {
         int type;
-        if(data == "100")
+        if(data == "1000")
             type = 0;
-        else if(data == "200")
+        else if(data == "2000")
             type = 1;
-        else if(data == "500")
+        else if(data == "5000")
             type = 2;
         else
             return;
@@ -333,41 +335,56 @@ void MainWindow::readSocket()
     }
 
     else if(header == "REFPL") {
-        processViewCurrentPlayers(socket);
+        processViewCurrentPlayers(socket, data);
     }
 
     else if(header == "INVIT") {
-        ClientInfo *invited = nullptr;
+        QString inviter = data.split('|')[0];
+        QString invited = data.split('|')[1];
+        int m_bet = data.split('|')[2].toInt();
+        ClientInfo *invited_player = nullptr;
         for(int i = 0; i < m_client_set.size(); i++) {
-            if(m_client_set[i]->acc != nullptr && m_client_set[i]->acc->id == data) {
-                invited = m_client_set[i];
+            if(m_client_set[i]->acc != nullptr && m_client_set[i]->acc->id == invited) {
+                invited_player = m_client_set[i];
                 break;
             }
         }
-        if(invited != nullptr) {
-            sendMessage(invited->sockfd, "INVIT" + client->acc->id);
+        if(invited_player != nullptr) {
+            sendMessage(invited_player->sockfd, "INVIT" + client->acc->id + "|" + QString::number(m_bet));
         }
     }
 
-    else if(header == "ACCRE") {
-        Account *acc = nullptr;
-        for(int i = 0; i < m_acc_set.size(); i++) {
+    else if(header == "SUREN") {
+        RoomInfo *room = client->room;
+        if(room != nullptr) {
+            int bet = 0;
+            if (room->type == '0') {
+                bet = 1000;
+            } else if (room->type == '1') {
+                bet = 2000;
+            } else if (room->type == '2') {
+                bet = 5000;
+            }
+            // Player who surrendered loses
+            if(room->p1 == client) {
+                sendMessage(room->p1->sockfd, "SURLS"); // Surrender lose
+                sendMessage(room->p2->sockfd, "SURWN"); // Surrender win
+                room->p2->acc->score += bet;
+                room->p1->acc->score -= bet;
+            } else {
+                sendMessage(room->p1->sockfd, "SURWN"); 
+                sendMessage(room->p2->sockfd, "SURLS");
+                room->p1->acc->score += bet;
+                room->p2->acc->score -= bet;
+            }
             
-            if(m_acc_set[i]->id == data) {
-                acc = m_acc_set[i];
-                break;
-            }
-        }
-        if(acc != nullptr) {
-            sendMessage(socket, "ACCRE" + acc->id + "|" + acc->pwd + "|" + QString::number(acc->score));
+            // Clean up room
+            room->p1->room = nullptr;
+            room->p2->room = nullptr;
+            m_room_list[room->type].removeAll(room);
+            delete room;
         }
     }
-
-    else if(header == "SPWHE") {
-        int score = data.toInt();
-        client->acc->score += score;
-        sendMessage(socket, "SPWHE" + QString::number(client->acc->score));
-    }    
 }
 
 void MainWindow::discardSocket()

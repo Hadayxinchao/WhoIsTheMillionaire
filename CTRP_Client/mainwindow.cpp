@@ -228,9 +228,46 @@ void MainWindow::readSocketSlot() {
     socketStream >> buffer;
 
     QString response = QString::fromStdString(buffer.toStdString());
-    if(m_process_list.isEmpty()) return;
+    qDebug() << "Received response:" << response;
+    if (m_process_list.isEmpty()) {
+        if(response.left(5) == "REFPL") {
+            QStringList lstr = response.mid(5).split('|');
+            updateOnlinePlayers(lstr);
+        }
+        else if(response.left(5) == "INVIT") {
+            QString inviter = response.mid(5).split('|')[0];
+            int bet = response.mid(5).split('|')[1].toInt();
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Game Invitation",
+                                        inviter + " invited you to play!\nDo you accept?",
+                                        QMessageBox::Yes|QMessageBox::No);
+            
+            if (reply == QMessageBox::Yes) {
+                m_bet = bet;
+                setupInRoom(bet);
+                setCurrentTab(DISPLAY::ROOM);
+            } else {
+                sendToServer("RJTJR" + inviter);
+            }
+        }
+        else if (response.left(5) == "SURLS") {
+            m_score -= m_bet;
+            ui->scoreInp->setText(QString::number(m_score));
+            QMessageBox::information(this, "Game Over", "You surrendered and lost the match!");
+            setCurrentTab(DISPLAY::MAIN);
+        }
+        else if(response.left(5) == "SURWN") {
+            m_score += m_bet;
+            ui->scoreInp->setText(QString::number(m_score));
+            QMessageBox::information(this, "Game Over", "Your opponent surrendered - You win!");
+            setCurrentTab(DISPLAY::MAIN);
+        }
+        return;
+    }
     int mode = m_process_list.first();
+    qDebug() << "Current process mode queue:" << m_process_list;
     m_process_list.pop_front();
+
     if(mode == PROCESS_MODE::LOGIN) {
         if(response.left(5) == "SUCLI") {
             m_acc_name = ui->usernameLineEdit->text().trimmed();
@@ -286,8 +323,10 @@ void MainWindow::readSocketSlot() {
         }
     }
     else if(mode == PROCESS_MODE::ReadyPvP) {
-        if(response == "START_PVP")
+        if(response == "START_PVP") {
+            in_pvp = true;
             setupME();
+        }
     }
     else if(mode == PROCESS_MODE::FinishPvP) {
         if(response.left(5) == "RSPVP") {
@@ -308,10 +347,6 @@ void MainWindow::readSocketSlot() {
             ui->btnBackToMenu_Room->setVisible(true);
             ui->btnBackToMenu_Room->setEnabled(true);
         }
-    }
-    else if(mode == PROCESS_MODE::CurrentPlayers) {
-        QStringList lstr = response.split('|');
-        updateOnlinePlayers(lstr);
     }
 }
 
@@ -383,25 +418,26 @@ void MainWindow::on_btnPvP_clicked() {
     m_p2p_score = 0;
     ui->roomGRP->setVisible(false);
     ui->BETGRP->setEnabled(true);
-    ui->btnBET100->setStyleSheet("background-color: lightGray");
-    ui->btnBET200->setStyleSheet("background-color: lightGray");
-    ui->btnBET500->setStyleSheet("background-color: lightGray");
-    if(m_score >= 100)
-        ui->btnBET100->setEnabled(true);
+    ui->btnBET1000->setStyleSheet("background-color: lightGray");
+    ui->btnBET2000->setStyleSheet("background-color: lightGray");
+    ui->btnBET5000->setStyleSheet("background-color: lightGray");
+    if(m_score >= 1000)
+        ui->btnBET1000->setEnabled(true);
     else
-        ui->btnBET100->setEnabled(false);
-    if(m_score >= 200)
-        ui->btnBET200->setEnabled(true);
+        ui->btnBET1000->setEnabled(false);
+    if(m_score >= 2000)
+        ui->btnBET2000->setEnabled(true);
     else
-        ui->btnBET200->setEnabled(false);
-    if(m_score >= 500)
-        ui->btnBET500->setEnabled(true);
+        ui->btnBET2000->setEnabled(false);
+    if(m_score >= 5000)
+        ui->btnBET5000->setEnabled(true);
     else
-        ui->btnBET500->setEnabled(false);
+        ui->btnBET5000->setEnabled(false);
     setCurrentTab(DISPLAY::ROOM);
 }
 
 void MainWindow::setupInRoom(int bet) {
+    m_has_room = true;
     ui->BETGRP->setEnabled(false);
     ui->roomGRP->setVisible(true);
     ui->roomStatus->setText("Waiting for other player...");
@@ -416,22 +452,22 @@ void MainWindow::setupInRoom(int bet) {
     m_process_list.push_back(PROCESS_MODE::GoRom);
 }
 
-void MainWindow::on_btnBET100_clicked() {
-    ui->btnBET100->setStyleSheet("background-color: red");
-    m_bet = 100;
-    setupInRoom(100);
+void MainWindow::on_btnBET1000_clicked() {
+    ui->btnBET1000->setStyleSheet("background-color: red");
+    m_bet = 1000;
+    setupInRoom(1000);
 }
 
-void MainWindow::on_btnBET200_clicked() {
-    ui->btnBET200->setStyleSheet("background-color: red");
-    m_bet = 200;
-    setupInRoom(200);
+void MainWindow::on_btnBET2000_clicked() {
+    ui->btnBET2000->setStyleSheet("background-color: red");
+    m_bet = 2000;
+    setupInRoom(2000);
 }
 
-void MainWindow::on_btnBET500_clicked() {
-    ui->btnBET500->setStyleSheet("background-color: red");
-    m_bet = 500;
-    setupInRoom(500);
+void MainWindow::on_btnBET5000_clicked() {
+    ui->btnBET5000->setStyleSheet("background-color: red");
+    m_bet = 5000;
+    setupInRoom(5000);
 }
 
 void MainWindow::on_btnSubmitME_clicked() {
@@ -536,7 +572,13 @@ void MainWindow::on_btnStartPvP_clicked() {
 }
 
 int MainWindow::randomProductIndex() {
-    return ((rand() % (m_product_list.size() - 1)) + 1);
+    if (m_product_list.size() <= 1) {
+        return 0; // or throw exception
+    }
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, m_product_list.size() - 1);
+    return dis(gen);
 }
 
 void MainWindow::setupME() {
@@ -781,19 +823,64 @@ void MainWindow::on_totalPrice_valueChanged()
 }
 
 void MainWindow::on_btnBackToMenu_ME_clicked() {
-    setCurrentTab(DISPLAY::MAIN);
+    if (in_pvp == true) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Exit Game",
+                                    "Do you want to exit the game?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        
+        if (reply == QMessageBox::Yes) {
+            sendToServer("SUREN");
+            setCurrentTab(DISPLAY::MAIN);
+        } else return;
+    } else 
+        setCurrentTab(DISPLAY::MAIN);
 }
 
 void MainWindow::on_btnBackToMenu_GC_clicked() {
-    setCurrentTab(DISPLAY::MAIN);
+    if (in_pvp == true) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Exit Game",
+                                    "Do you want to exit the game?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        
+        if (reply == QMessageBox::Yes) {
+            sendToServer("SUREN");
+            setCurrentTab(DISPLAY::MAIN);
+        } else return;
+    } else 
+        setCurrentTab(DISPLAY::MAIN);
+    
 }
 
 void MainWindow::on_btnBackToMenu_SP_clicked() {
-    setCurrentTab(DISPLAY::MAIN);
+    if (in_pvp == true) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Exit Game",
+                                    "Do you want to exit the game?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        
+        if (reply == QMessageBox::Yes) {
+            sendToServer("SUREN");
+            setCurrentTab(DISPLAY::MAIN);
+        } else return;
+    } else 
+        setCurrentTab(DISPLAY::MAIN);
 }
 
 void MainWindow::on_btnBackToMenu_LW_clicked() {
-    setCurrentTab(DISPLAY::MAIN);
+    if (in_pvp == true) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Exit Game",
+                                    "Do you want to exit the game?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        
+        if (reply == QMessageBox::Yes) {
+            sendToServer("SUREN");
+            setCurrentTab(DISPLAY::MAIN);
+        } else return;
+    } else 
+        setCurrentTab(DISPLAY::MAIN);
 }
 
 void MainWindow::on_btnBackToMenu_SC_clicked()
@@ -824,7 +911,15 @@ void MainWindow::initOnlinePlayersTable() {
 }
 
 void MainWindow::updateOnlinePlayers(const QStringList& players) {
+    // Clear existing rows
     ui->onlinePlayersTable->setRowCount(0);
+    showLog("Online Players: " + players.join(", "));
+    // Return if no players
+    if (players.isEmpty()) {
+        return;
+    }
+
+    // Add players if list not empty
     for(const QString& player : players) {
         int row = ui->onlinePlayersTable->rowCount();
         ui->onlinePlayersTable->insertRow(row);
@@ -837,22 +932,30 @@ void MainWindow::updateOnlinePlayers(const QStringList& players) {
         QTableWidgetItem* statusItem = new QTableWidgetItem("Online");
         ui->onlinePlayersTable->setItem(row, 1, statusItem);
         
-        // Invite Button
-        QPushButton* inviteBtn = new QPushButton("Invite");
-        ui->onlinePlayersTable->setCellWidget(row, 2, inviteBtn);
-        
-        connect(inviteBtn, &QPushButton::clicked, this, [this, player]() {
-            sendInvitation(player);
-        });
+         // Only add invite button if not self (first player)
+        if (row > 0) {
+            QPushButton* inviteBtn = new QPushButton("Invite");
+            ui->onlinePlayersTable->setCellWidget(row, 2, inviteBtn);
+            
+            connect(inviteBtn, &QPushButton::clicked, this, [this, player]() {
+                sendInvitation(player);
+            });
+        }
     }
 }
 
 void MainWindow::sendInvitation(const QString& player) {
-    // Send invitation request to server
-    sendToServer("INVIT" + player);
+    if (!m_has_room) {
+        QMessageBox::warning(this, "Warning", 
+            "Please create a room first by selecting a bet amount!");
+        return;
+    }
+    
+    qDebug() << "Sending invitation to:" << player;
+    qDebug() << "Bet is:" << m_bet;
+    sendToServer("INVIT" + m_acc_name + '|' + player + '|' + QString::number(m_bet));
 }
 
 void MainWindow::on_btnRefreshPlayers_clicked() {
-    sendToServer("REFPL");
-    m_process_list.push_back(PROCESS_MODE::CurrentPlayers);
+    sendToServer("REFPL" + m_acc_name);
 }

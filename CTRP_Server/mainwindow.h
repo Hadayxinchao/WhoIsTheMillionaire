@@ -87,10 +87,9 @@ private:
     void processLogIn(QTcpSocket *socket, ClientInfo *client, QString &data);
     void processSignUp(QTcpSocket *socket, ClientInfo *client, QString &data);
     void processViewRank(QTcpSocket *socket);
-    void processViewCurrentPlayers(QTcpSocket *socket);
+    void processViewCurrentPlayers(QTcpSocket *socket, QString id);
 private:
     Ui::MainWindow *ui;
-
     QTcpServer* m_server;
     QVector<ClientInfo*> m_client_set;
     QVector<Account*> m_acc_set;
