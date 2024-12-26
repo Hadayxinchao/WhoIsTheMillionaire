@@ -1341,7 +1341,7 @@
                 </font>
               </property>
               <property name="text">
-                <string>Predict the total price for the following 3 products (ranging from 0 to 30000). The player wins if their prediction is correct or within 3000 units of the correct value.</string>
+                <string>Predict the total price for the following 3 products (ranging from 0 to 30000). The player wins if their prediction is correct or within 30 units of the correct value.</string>
               </property>
               <property name="wordWrap">
                 <bool>true</bool>

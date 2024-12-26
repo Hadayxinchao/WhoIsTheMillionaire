@@ -81,7 +81,7 @@ void MainWindow::loadImageToLabel(QLabel *label, const QString &imgPath) {
         // Nếu là URL
         QNetworkRequest request((QUrl(imgPath))); 
         QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-        
+
         connect(manager, &QNetworkAccessManager::finished, this, [=](QNetworkReply *reply) {
             if (reply->error() == QNetworkReply::NoError) {
                 QByteArray imageData = reply->readAll();
@@ -504,6 +504,7 @@ void MainWindow::on_btnPvP_clicked() {
     ui->btnBET1000->setStyleSheet("background-color: lightGray");
     ui->btnBET2000->setStyleSheet("background-color: lightGray");
     ui->btnBET5000->setStyleSheet("background-color: lightGray");
+
     if(m_score >= 1000)
         ui->btnBET1000->setEnabled(true);
     else
@@ -521,6 +522,7 @@ void MainWindow::on_btnPvP_clicked() {
 
 void MainWindow::setupInRoom(int bet) {
     m_has_room = true;
+    showLog("Setting up room..." + QString::number(bet));
     ui->BETGRP->setEnabled(false);
     ui->roomGRP->setVisible(true);
     ui->roomStatus->setText("Waiting for other player...");
@@ -536,19 +538,19 @@ void MainWindow::setupInRoom(int bet) {
 }
 
 void MainWindow::on_btnBET1000_clicked() {
-    ui->btnBET1000->setStyleSheet("background-color: red");
+    ui->btnBET1000->setStyleSheet("background-color: #1E90FF");
     m_bet = 1000;
     setupInRoom(1000);
 }
 
 void MainWindow::on_btnBET2000_clicked() {
-    ui->btnBET2000->setStyleSheet("background-color: red");
+    ui->btnBET2000->setStyleSheet("background-color: #1E90FF");
     m_bet = 2000;
     setupInRoom(2000);
 }
 
 void MainWindow::on_btnBET5000_clicked() {
-    ui->btnBET5000->setStyleSheet("background-color: red");
+    ui->btnBET5000->setStyleSheet("background-color: #1E90FF");
     m_bet = 5000;
     setupInRoom(5000);
 }
@@ -568,7 +570,7 @@ void MainWindow::on_btnSubmitME_clicked() {
     }
     else {
         ui->singleScore_GC->setText(QString::number(m_single_score) + " points");
-        QMessageBox::information(this, "RESULT", QString("Wish you luck next time!"));
+        QMessageBox::information(this, "RESULT", QString("Your answer is wrong! Wish you luck next time!"));
     }
     setupGrocery();
 }
@@ -583,7 +585,7 @@ void MainWindow::on_btnSubmitG_clicked() {
     for(int i = 0; i < 5; i++) {
         userTotal += (userAmount[i] * m_product_list[m_ID_G[i]].price);
     }
-    if((int)abs(userTotal - m_total_G) <= 2000) {
+    if((int)abs(userTotal - m_total_G) <= 20) {
         QMessageBox::information(this, "RESULT", QString("Your purchase: %1\nCongrats you made the right choice!").arg(userTotal));
         if(m_p2p_mode) {
             m_p2p_score += 500;
@@ -597,20 +599,9 @@ void MainWindow::on_btnSubmitG_clicked() {
     }
     else {
         ui->singleScore_DP->setText(QString::number(m_single_score) + " points");
-        QMessageBox::information(this, "RESULT", QString("Your purchase: %1\nWish you luck next time!").arg(userTotal));
+        QMessageBox::information(this, "RESULT", QString("Your purchase: %1\n Your answer is wrong!").arg(userTotal));
     }
     setupDP();
-    // finish game
-//    if(m_p2p_mode) {
-//        ui->player1_score->setText(QString::number(m_p2p_score));
-//        ui->roomStatus->setText("Waiting for your competitor finish game...");
-//        ui->btnStartPvP->setEnabled(false);
-//        sendToServer("RSPVP" + QString::number(m_p2p_score));
-//        m_process_list.push_back(PROCESS_MODE::FinishPvP);
-//        setupSpinWheel();
-//    }
-//    else
-//        setupSpinWheel();
 }
 
 void MainWindow::on_btnSubmitDP_clicked() {
@@ -641,20 +632,9 @@ void MainWindow::on_btnSubmitDP_clicked() {
     }
     else {
         ui->singleScore_SC->setText(QString::number(m_single_score) + " points");
-        QMessageBox::information(this, "RESULT", QString("Wish you luck next time!"));
+        QMessageBox::information(this, "RESULT", QString("Your answer is wrong! Wish you luck next time!"));
     }
     setupSpinWheel();
-    // finish game
-//    if(m_p2p_mode) {
-//        ui->player1_score->setText(QString::number(m_p2p_score));
-//        ui->roomStatus->setText("Waiting for your competitor finish game...");
-//        ui->btnStartPvP->setEnabled(false);
-//        sendToServer("RSPVP" + QString::number(m_p2p_score));
-//        m_process_list.push_back(PROCESS_MODE::FinishPvP);
-//        setCurrentTab(DISPLAY::ROOM);
-//    }
-//    else
-//        setCurrentTab(DISPLAY::MAIN);
 }
 
 void MainWindow::on_btnStartPvP_clicked() {
@@ -724,11 +704,13 @@ void MainWindow::setupGrocery() {
     amount = (rand() % 3) + 1;
     m_total_G += (amount * m_product_list[m_ID_G[i]].price);
 
+    showLog(QString("Total: %1").arg(m_total_G));
+
     loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
     
     name[i]->setText(m_product_list[m_ID_G[i]].name);
 }
-    ui->rangeInp->setText(QString("From %1 to %2 USD").arg(m_total_G-2000).arg(m_total_G+2000));
+    ui->rangeInp->setText(QString("From %1 to %2 USD").arg(m_total_G-20).arg(m_total_G+20));
     ui->quantityProduct1->setValue(0);
     ui->quantityProduct2->setValue(0);
     ui->quantityProduct3->setValue(0);
@@ -753,7 +735,7 @@ void MainWindow::setupDP() {
     QLabel* name[4] = {ui->name1_DP, ui->name2_DP, ui->name3_DP, ui->name4_DP};
     QCheckBox* check[4] = {ui->check1_DP, ui->check2_DP, ui->check3_DP, ui->check4_DP};
     for(int i = 0; i < 4; i++) {
-        loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
+        loadImageToLabel(pic[i], m_product_list[indexList[i]].imgPath); 
         name[i]->setText(m_product_list[indexList[i]].name);
         check[i]->setChecked(false);
     }
@@ -790,7 +772,7 @@ void MainWindow::setupTSC() {
 
         nameLabels[i]->setText(m_product_list[productIDs[i]].name);
         priceLabels[i]->setText(QString::number(m_product_list[productIDs[i]].price));
-        priceLabels[i]->hide(); // Ẩn giá
+        priceLabels[i]->hide();
     }
 
     if (m_product_list[id1].price > m_product_list[id2].price && m_product_list[id1].price > m_product_list[id3].price)
@@ -850,7 +832,8 @@ void MainWindow::on_btnSpinWheel_clicked()
 void MainWindow::on_btnSubmitLW_clicked()
 {
     if(m_p2p_mode) {
-        m_p2p_score += bonus;
+        // Need to discuss
+        // m_p2p_score += bonus;
     } else {
         m_score += bonus;
         ui->scoreInp->setText(QString::number(m_score));
@@ -867,18 +850,22 @@ void MainWindow::on_btnSubmitEndGame_clicked()
     int price2 = ui->label_show_case_price2->text().toInt();
     int price3 = ui->label_show_case_price3->text().toInt();
     bonus = 0;
-    if (qAbs(price1+price2+price3-totalPrice) <= 3000) {
-        QMessageBox::information(this, "RESULT", QString("Congratulations!!! You win: %1\nWish you luck next time!"));
+
+    if (qAbs(price1+price2+price3-totalPrice) <= 30) {
+        QMessageBox::information(this, "RESULT", QString("Congratulations!!!"));
         ui->label_show_case_price1->show();
         ui->label_show_case_price2->show();
         ui->label_show_case_price3->show();
+
         if (m_p2p_mode) {
-            m_p2p_score += 2000;
+            m_p2p_score += 500;
         } else {
-            m_score += 2000;
+            m_score += 500;
+            m_single_score += 500;
+            ui->singleScore_SC->setText(QString::number(m_single_score) + " points");
         }
     } else {
-        QMessageBox::information(this, "RESULT", QString("You lose. Wish you luck next time!"));
+        QMessageBox::information(this, "RESULT", QString("Your answer is wrong! Wish you luck next time!"));
         ui->label_show_case_price1->show();
         ui->label_show_case_price2->show();
         ui->label_show_case_price3->show();
@@ -895,10 +882,11 @@ void MainWindow::on_btnSubmitEndGame_clicked()
         setCurrentTab(DISPLAY::ROOM);
     }
     else {
+        QMessageBox::information(this, "RESULT", QString("End game with score: %1").arg(m_single_score));
+        m_single_score = 0;
         setCurrentTab(DISPLAY::MAIN);
         sendToServer("ENDGA" + QString::number(m_score));
     }
-
 }
 
 void MainWindow::on_totalPrice_valueChanged()
