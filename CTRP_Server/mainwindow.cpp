@@ -296,14 +296,33 @@ void MainWindow::readSocket()
     }
 
     else if(header == "OUTRM") {
-        RoomInfo *room = client->room;
-        if(room != nullptr) {
-            showLog(room->p1->acc->id + " out of room");
+    RoomInfo *room = client->room;
+    if(room != nullptr) {
+        // Player 1 leaving
+        if(room->p1 == client) {
+            if(room->p2 != nullptr) {
+                sendMessage(room->p2->sockfd, "OUTRM" + client->acc->id);
+            }
+            room->p1 = nullptr;
+        }
+        // Player 2 leaving  
+        else if(room->p2 == client) {
+            if(room->p1 != nullptr) {
+                sendMessage(room->p1->sockfd, "OUTRM" + client->acc->id);
+            }
+            room->p2 = nullptr;
+        }
+
+        showLog(client->acc->id + " out of room");
+        client->room = nullptr;
+
+        // Only delete room if both players gone
+        if(room->p1 == nullptr && room->p2 == nullptr) {
             m_room_list[room->type].removeAll(room);
             delete room;
         }
-        client->room = nullptr;
     }
+}
 
     else if(header == "ENDGA") {
         showLog(QString("%1 :: Save score with account ").arg(socket->socketDescriptor()) + client->acc->id);

@@ -20,6 +20,12 @@ LIBS += -L/opt/homebrew/opt/jsoncpp/lib -ljsoncpp
 INCLUDEPATH += /opt/homebrew/opt/curl/include
 LIBS += -L/opt/homebrew/opt/curl/lib -lcurl
 
+LIBS += -lcurl
+INCLUDEPATH += /usr/include/curl
+
+LIBS += -ljsoncpp
+INCLUDEPATH += /usr/include/jsoncpp
+
 SOURCES += \
     main.cpp \
     mainwindow.cpp

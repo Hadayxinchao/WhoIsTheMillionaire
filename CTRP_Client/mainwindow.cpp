@@ -312,40 +312,62 @@ void MainWindow::readSocketSlot() {
 
     QString response = QString::fromStdString(buffer.toStdString());
     qDebug() << "Received response:" << response;
-    if (m_process_list.isEmpty()) {
-        if(response.left(5) == "REFPL") {
-            QStringList lstr = response.mid(5).split('|');
-            updateOnlinePlayers(lstr);
-        }
-        else if(response.left(5) == "INVIT") {
-            QString inviter = response.mid(5).split('|')[0];
-            int bet = response.mid(5).split('|')[1].toInt();
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "Game Invitation",
-                                        inviter + " invited you to play!\nDo you accept?",
-                                        QMessageBox::Yes|QMessageBox::No);
-            
-            if (reply == QMessageBox::Yes) {
-                m_bet = bet;
+    if(response.left(5) == "REFPL") {
+        QStringList lstr = response.mid(5).split('|');
+        updateOnlinePlayers(lstr);
+        return;
+    }
+    else if(response.left(5) == "INVIT") {
+        QString inviter = response.mid(5).split('|')[0];
+        int bet = response.mid(5).split('|')[1].toInt();
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Game Invitation",
+                                    inviter + " invited you to play!\nDo you accept?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        
+        if (reply == QMessageBox::Yes) {
+            m_bet = bet;
+            if (m_score < bet) {
+                QMessageBox::warning(this, "Game Invitation", "You don't have enough score to play this match!");
+                return;
+            } else {
                 setupInRoom(bet);
                 setCurrentTab(DISPLAY::ROOM);
-            } else {
-                sendToServer("RJTJR" + inviter);
             }
-        }
-        else if (response.left(5) == "SURLS") {
-            m_score -= m_bet;
-            ui->scoreInp->setText(QString::number(m_score));
-            QMessageBox::information(this, "Game Over", "You surrendered and lost the match!");
-            setCurrentTab(DISPLAY::MAIN);
-        }
-        else if(response.left(5) == "SURWN") {
-            m_score += m_bet;
-            ui->scoreInp->setText(QString::number(m_score));
-            QMessageBox::information(this, "Game Over", "Your opponent surrendered - You win!");
-            setCurrentTab(DISPLAY::MAIN);
+
+        } else {
+            sendToServer("RJTJR" + inviter);
         }
         return;
+    }
+    else if (response.left(5) == "SURLS") {
+        m_score -= m_bet;
+        ui->scoreInp->setText(QString::number(m_score));
+        QMessageBox::information(this, "Game Over", "You surrendered and lost the match!");
+        setCurrentTab(DISPLAY::MAIN);
+        return;
+    }
+    else if(response.left(5) == "SURWN") {
+        m_score += m_bet;
+        ui->scoreInp->setText(QString::number(m_score));
+        QMessageBox::information(this, "Game Over", "Your opponent surrendered - You win!");
+        setCurrentTab(DISPLAY::MAIN);
+        return;
+    }
+    else if(response.left(5) == "OUTRM") {
+        QString leaver = response.mid(5);
+        QMessageBox::information(this, "Player Left",
+                               leaver + " has left the room!");
+        ui->player_name_2->setText("...");
+        ui->player2_score->setText("...");
+        ui->roomStatus->setText("Waiting for another player");
+        ui->btnStartPvP->setEnabled(false);
+        return;
+    }
+    if (m_process_list.isEmpty()) {
+        if(response.left(5) == "READY") {
+            m_process_list.push_back(PROCESS_MODE::GoRom);
+        }
     }
     int mode = m_process_list.first();
     qDebug() << "Current process mode queue:" << m_process_list;
@@ -433,15 +455,6 @@ void MainWindow::readSocketSlot() {
     }
 }
 
-void MainWindow::on_btnExitRoom_clicked() {
-    if(ui->player_name_2->text() == "...") {
-        sendToServer("OUTRM");
-        if(m_process_list.last() == PROCESS_MODE::GoRom)
-            m_process_list.pop_back();
-    }
-    setCurrentTab(DISPLAY::MAIN);
-}
-
 void MainWindow::discardSocket()
 {
     m_socket->deleteLater();
@@ -498,7 +511,6 @@ void MainWindow::on_btnSingle_clicked() {
 
 void MainWindow::on_btnPvP_clicked() {
     m_p2p_mode = true;
-    m_p2p_score = 0;
     ui->roomGRP->setVisible(false);
     ui->BETGRP->setEnabled(true);
     ui->btnBET1000->setStyleSheet("background-color: lightGray");
@@ -521,6 +533,17 @@ void MainWindow::on_btnPvP_clicked() {
 }
 
 void MainWindow::setupInRoom(int bet) {
+    ui->btnBET1000->setStyleSheet("background-color: lightGray");
+    ui->btnBET2000->setStyleSheet("background-color: lightGray");
+    ui->btnBET5000->setStyleSheet("background-color: lightGray");
+    if (bet == 1000) {
+        ui->btnBET1000->setStyleSheet("background-color: #1E90FF");
+    } else if (bet == 2000) {
+        ui->btnBET2000->setStyleSheet("background-color: #1E90FF");
+    } else if (bet == 5000) {
+        ui->btnBET5000->setStyleSheet("background-color: #1E90FF");
+    }
+    m_bet = bet;
     m_has_room = true;
     showLog("Setting up room..." + QString::number(bet));
     ui->BETGRP->setEnabled(false);
@@ -538,20 +561,14 @@ void MainWindow::setupInRoom(int bet) {
 }
 
 void MainWindow::on_btnBET1000_clicked() {
-    ui->btnBET1000->setStyleSheet("background-color: #1E90FF");
-    m_bet = 1000;
     setupInRoom(1000);
 }
 
 void MainWindow::on_btnBET2000_clicked() {
-    ui->btnBET2000->setStyleSheet("background-color: #1E90FF");
-    m_bet = 2000;
     setupInRoom(2000);
 }
 
 void MainWindow::on_btnBET5000_clicked() {
-    ui->btnBET5000->setStyleSheet("background-color: #1E90FF");
-    m_bet = 5000;
     setupInRoom(5000);
 }
 
@@ -560,6 +577,7 @@ void MainWindow::on_btnSubmitME_clicked() {
         QMessageBox::information(this, "RESULT", QString("Congrats you made the right choice!"));
         if(m_p2p_mode) {
             m_p2p_score += 500;
+            ui->singleScore_GC->setText(QString::number(m_p2p_score) + " points");
         }
         else {
             m_single_score += 500;
@@ -589,6 +607,7 @@ void MainWindow::on_btnSubmitG_clicked() {
         QMessageBox::information(this, "RESULT", QString("Your purchase: %1\nCongrats you made the right choice!").arg(userTotal));
         if(m_p2p_mode) {
             m_p2p_score += 500;
+            ui->singleScore_DP->setText(QString::number(m_p2p_score) + " points");
         }
         else {
             m_single_score += 500;
@@ -622,6 +641,7 @@ void MainWindow::on_btnSubmitDP_clicked() {
         QMessageBox::information(this, "RESULT", QString("Congrats you made the right choice!"));
         if(m_p2p_mode) {
             m_p2p_score += 500;
+            ui->singleScore_SC->setText(QString::number(m_p2p_score) + " points");
         }
         else {
             m_single_score += 500;
@@ -654,6 +674,7 @@ int MainWindow::randomProductIndex() {
 }
 
 void MainWindow::setupME() {
+    ui->singleScore_ME->setText("0 points");
     int id1 = randomProductIndex();
     int id2 = randomProductIndex();
     int id3 = randomProductIndex();
@@ -703,11 +724,7 @@ void MainWindow::setupGrocery() {
     for (int i = 0; i < 5; i++) {
     amount = (rand() % 3) + 1;
     m_total_G += (amount * m_product_list[m_ID_G[i]].price);
-
-    showLog(QString("Total: %1").arg(m_total_G));
-
     loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
-    
     name[i]->setText(m_product_list[m_ID_G[i]].name);
 }
     ui->rangeInp->setText(QString("From %1 to %2 USD").arg(m_total_G-20).arg(m_total_G+20));
@@ -976,9 +993,23 @@ void MainWindow::on_btnBackToMenu_SC_clicked()
 }
 
 void MainWindow::on_btnBackToMenu_Room_clicked()
-{
-    m_single_score = 0;
-    setCurrentTab(DISPLAY::MAIN);
+{   
+    if(ui->player_name_2->text() == "...") {
+        sendToServer("OUTRM" + m_acc_name);
+        if(m_process_list.last() == PROCESS_MODE::GoRom)
+            m_process_list.pop_back();
+        setCurrentTab(DISPLAY::MAIN);
+    } else {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Leave Room", 
+                                    "Are you sure you want to leave the room?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        
+        if (reply == QMessageBox::Yes) {
+            sendToServer("OUTRM" + m_acc_name);
+            setCurrentTab(DISPLAY::MAIN);
+        }
+    }
 }
 
 void MainWindow::on_btnBackToMenu_Ranking_clicked()

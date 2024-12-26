@@ -37,62 +37,71 @@
               <attribute name="title">
                 <string/>
               </attribute>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-                <widget class="QGroupBox" name="grpMain">
-                  <property name="enabled">
-                    <bool>false</bool>
-                  </property>
-                  <property name="title">
-                    <string>Menu</string>
-                  </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_2">
-                    <item>
-                      <widget class="QLabel" name="label_3">
-                        <property name="font">
-                          <font>
-                            <pointsize>16</pointsize>
-                            <bold>true</bold>
-                          </font>
-                        </property>
-                        <property name="text">
-                          <string>CHOOSE THE RIGHT PRICE</string>
-                        </property>
-                        <property name="alignment">
-                          <set>Qt::AlignCenter</set>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <layout class="QVBoxLayout" name="functionGroup">
-                        <item>
-                          <widget class="QPushButton" name="btnSingle">
-                            <property name="text">
-                              <string>Single play</string>
-                            </property>
-                          </widget>
-                        </item>
-                        <item>
-                          <widget class="QPushButton" name="btnPvP">
-                            <property name="text">
-                              <string>2v2 mode</string>
-                            </property>
-                          </widget>
-                        </item>
-                        <item>
-                          <widget class="QPushButton" name="btnViewRank">
-                            <property name="text">
-                              <string>View Ranking</string>
-                            </property>
-                          </widget>
-                        </item>
-                      </layout>
-                    </item>
-                  </layout>
-                </widget>
-              </item>
-            </layout>
-          </widget>
+              <property name="minimumWidth">
+                <number>640</number>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>640</width>
+                  <height>16777215</height>
+                </size>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                  <widget class="QGroupBox" name="grpMain">
+                    <property name="enabled">
+                      <bool>false</bool>
+                    </property>
+                    <property name="title">
+                      <string>Menu</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_2">
+                      <item>
+                        <widget class="QLabel" name="label_3">
+                          <property name="font">
+                            <font>
+                              <pointsize>16</pointsize>
+                              <bold>true</bold>
+                            </font>
+                          </property>
+                          <property name="text">
+                            <string>CHOOSE THE RIGHT PRICE</string>
+                          </property>
+                          <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                          </property>
+                        </widget>
+                      </item>
+                      <item>
+                        <layout class="QVBoxLayout" name="functionGroup">
+                          <item>
+                            <widget class="QPushButton" name="btnSingle">
+                              <property name="text">
+                                <string>Single play</string>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QPushButton" name="btnPvP">
+                              <property name="text">
+                                <string>2v2 mode</string>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QPushButton" name="btnViewRank">
+                              <property name="text">
+                                <string>View Ranking</string>
+                              </property>
+                            </widget>
+                          </item>
+                        </layout>
+                      </item>
+                    </layout>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
 
           ## Most Expensive Tab
           <widget class="QWidget" name="mostExpensiveTab">
@@ -313,6 +322,18 @@
               </property>
             </widget>
             <widget class="QLabel" name="singleScore_ME">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
               <property name="font">
                 <font>
                   <pointsize>16</pointsize>
@@ -670,6 +691,18 @@
               </property>
             </widget>
             <widget class="QLabel" name="singleScore_GC">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
               <property name="font">
                 <font>
                   <pointsize>16</pointsize>
@@ -1091,6 +1124,18 @@
             </widget>
 
             <widget class="QLabel" name="singleScore_DP">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
               <property name="font">
                 <font>
                   <pointsize>16</pointsize>
@@ -1620,6 +1665,18 @@
             </widget>
 
             <widget class="QLabel" name="singleScore_SC">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
               <property name="font">
                 <font>
                   <pointsize>16</pointsize>
