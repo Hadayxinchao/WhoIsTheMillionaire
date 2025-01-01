@@ -6,7 +6,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-#define ACC_FILE_NAME "/home/hoangha/hust/project/WhoIsTheMillionaire/CTRP_Server/accounts.txt"
+#define ACC_FILE_NAME "/Users/admin/Documents/code/Network_Project/WhoIsTheMillionaire/CTRP_Server/accounts.txt"
 
 class Account
 {

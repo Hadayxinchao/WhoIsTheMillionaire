@@ -58,7 +58,6 @@ private slots:
     void on_btnBET2000_clicked();
     void on_btnBET5000_clicked();
     void on_btnStartPvP_clicked();
-    void on_btnExitRoom_clicked();
     void on_btnSubmitLW_clicked();
     void on_btnBackToMenu_ME_clicked();
     void on_btnBackToMenu_GC_clicked();
@@ -88,6 +87,10 @@ private slots:
     void sendInvitation(const QString& player);
 
 private:
+    std::string fetchProductsData();
+    void saveProductsToFile(const std::string& jsonData);
+    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+    void loadImageToLabel(QLabel* label, const QString& imgPath);    
     void setupME();
     void setupGrocery();
     void setupDP();
@@ -110,7 +113,8 @@ private:
     int m_solution_ME;
     int m_total_G;
     int m_ID_G[5];
-    int m_p2p_score;
+    int m_single_score = 0;
+    int m_p2p_score = 0;
     int m_bet;
     int m_index_DP;
     int bonus = 0;

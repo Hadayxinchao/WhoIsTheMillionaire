@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I. -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/opt/homebrew/opt/jsoncpp/include -I/opt/homebrew/opt/curl/include -I/usr/include/curl -I/usr/include/jsoncpp -I. -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = CTRP_Client1.0.0
 DISTDIR = /home/hoangha/hust/project/WhoIsTheMillionaire/CTRP_Client/.tmp/CTRP_Client1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
+LIBS          = $(SUBLIBS) -L/opt/homebrew/opt/jsoncpp/lib -L/opt/homebrew/opt/curl/lib -lcurl -ljsoncpp /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -53,11 +53,9 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = main.cpp \
-		mainwindow.cpp qrc_resource.cpp \
-		moc_mainwindow.cpp
+		mainwindow.cpp moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
-		qrc_resource.o \
 		moc_mainwindow.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -226,8 +224,7 @@ Makefile: CTRP_Client.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		CTRP_Client.pro \
-		resource.qrc
+		CTRP_Client.pro
 	$(QMAKE) -o Makefile CTRP_Client.pro
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf:
@@ -307,7 +304,6 @@ Makefile: CTRP_Client.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf:
 CTRP_Client.pro:
-resource.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile CTRP_Client.pro
 
@@ -322,7 +318,6 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents resource.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.h $(DISTDIR)/
 	$(COPY_FILE) --parents main.cpp mainwindow.cpp $(DISTDIR)/
@@ -350,31 +345,8 @@ check: first
 
 benchmark: first
 
-compiler_rcc_make_all: qrc_resource.cpp
+compiler_rcc_make_all:
 compiler_rcc_clean:
-	-$(DEL_FILE) qrc_resource.cpp
-qrc_resource.cpp: resource.qrc \
-		/usr/lib/qt5/bin/rcc \
-		Products/products_list.txt \
-		Products/images/FloorMopKangoroo.jpg \
-		Products/images/SoftenerDowny.jpg \
-		Products/images/image_none.jpg \
-		Products/images/AirConditionerDaikin.jpg \
-		Products/images/SwallowNestKhanhHoa.jpg \
-		Products/images/Iphone14.jpg \
-		Products/images/LaundrymachineLG.jpg \
-		Products/images/AirpodPro2.jpg \
-		Products/images/Solid-StateDriveKingston.jpg \
-		Products/images/Laptop.jpg \
-		Products/images/CameraCanon.jpg \
-		Products/images/TiviSony.jpg \
-		Products/images/IpadAirWifi.jpg \
-		Products/images/RefrigeratorSamSung.jpg \
-		Products/images/MicrowaveOvenSharp.jpg \
-		Products/images/versus.jpg \
-		Products/images/SamSungGalaxy.jpg
-	/usr/lib/qt5/bin/rcc -name resource resource.qrc -o qrc_resource.cpp
-
 compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
@@ -528,7 +500,7 @@ moc_mainwindow.cpp: mainwindow.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtCore/qjsonarray.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/hoangha/hust/project/WhoIsTheMillionaire/CTRP_Client/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/hoangha/hust/project/WhoIsTheMillionaire/CTRP_Client -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -I/Library/Developer/CommandLineTools/usr/lib/clang/16/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -I/Library/Developer/CommandLineTools/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/hoangha/hust/project/WhoIsTheMillionaire/CTRP_Client/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/hoangha/hust/project/WhoIsTheMillionaire/CTRP_Client -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/opt/homebrew/opt/jsoncpp/include -I/opt/homebrew/opt/curl/include -I/usr/include/curl -I/usr/include/jsoncpp -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -I/Library/Developer/CommandLineTools/usr/lib/clang/16/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -I/Library/Developer/CommandLineTools/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -547,7 +519,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -868,6 +840,20 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgroupbox.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qframe.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHeaderView \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qheaderview.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractitemview.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractscrollarea.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/qabstractitemmodel.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/qitemselectionmodel.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractitemdelegate.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qstyleoption.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractspinbox.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtGui/qvalidator.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qslider.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractslider.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtabbar.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qrubberband.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLabel \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlabel.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLineEdit \
@@ -886,15 +872,15 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QSpacerItem \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QSpinBox \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qspinbox.h \
-		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractspinbox.h \
-		/usr/include/x86_64-linux-gnu/qt5/QtGui/qvalidator.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QStatusBar \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qstatusbar.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTabWidget \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTableWidget \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtablewidget.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtableview.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTextBrowser \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtextbrowser.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtextedit.h \
-		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractscrollarea.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtGui/qtextdocument.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTextEdit \
 		/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QVBoxLayout \
@@ -904,11 +890,38 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtCore/qdeadlinetimer.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtCore/qelapsedtimer.h \
 		/usr/include/x86_64-linux-gnu/qt5/QtCore/QtMath \
-		/usr/include/x86_64-linux-gnu/qt5/QtCore/qmath.h
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/qmath.h \
+		/usr/include/jsoncpp/json/json.h \
+		/usr/include/jsoncpp/json/config.h \
+		/usr/include/jsoncpp/json/allocator.h \
+		/usr/include/jsoncpp/json/version.h \
+		/usr/include/jsoncpp/json/json_features.h \
+		/usr/include/jsoncpp/json/forwards.h \
+		/usr/include/jsoncpp/json/reader.h \
+		/usr/include/jsoncpp/json/value.h \
+		/usr/include/jsoncpp/json/writer.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/QNetworkReply \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qnetworkreply.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/QIODevice \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/QNetworkRequest \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qnetworkrequest.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/QSharedDataPointer \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/QUrl \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/QNetworkAccessManager \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qnetworkaccessmanager.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/QVector \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/QObject \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/QSslConfiguration \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qsslconfiguration.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qsslsocket.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qsslerror.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qsslcertificate.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/qcryptographichash.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qssl.h \
+		/usr/include/x86_64-linux-gnu/qt5/QtCore/QFlags \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/QSslPreSharedKeyAuthenticator \
+		/usr/include/x86_64-linux-gnu/qt5/QtNetwork/qsslpresharedkeyauthenticator.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
-
-qrc_resource.o: qrc_resource.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resource.o qrc_resource.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

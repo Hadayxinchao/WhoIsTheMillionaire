@@ -37,62 +37,71 @@
               <attribute name="title">
                 <string/>
               </attribute>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-                <widget class="QGroupBox" name="grpMain">
-                  <property name="enabled">
-                    <bool>false</bool>
-                  </property>
-                  <property name="title">
-                    <string>Menu</string>
-                  </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_2">
-                    <item>
-                      <widget class="QLabel" name="label_3">
-                        <property name="font">
-                          <font>
-                            <pointsize>16</pointsize>
-                            <bold>true</bold>
-                          </font>
-                        </property>
-                        <property name="text">
-                          <string>CHOOSE THE RIGHT PRICE</string>
-                        </property>
-                        <property name="alignment">
-                          <set>Qt::AlignCenter</set>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <layout class="QVBoxLayout" name="functionGroup">
-                        <item>
-                          <widget class="QPushButton" name="btnSingle">
-                            <property name="text">
-                              <string>Single play</string>
-                            </property>
-                          </widget>
-                        </item>
-                        <item>
-                          <widget class="QPushButton" name="btnPvP">
-                            <property name="text">
-                              <string>2v2 mode</string>
-                            </property>
-                          </widget>
-                        </item>
-                        <item>
-                          <widget class="QPushButton" name="btnViewRank">
-                            <property name="text">
-                              <string>View Ranking</string>
-                            </property>
-                          </widget>
-                        </item>
-                      </layout>
-                    </item>
-                  </layout>
-                </widget>
-              </item>
-            </layout>
-          </widget>
+              <property name="minimumWidth">
+                <number>640</number>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>640</width>
+                  <height>16777215</height>
+                </size>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                  <widget class="QGroupBox" name="grpMain">
+                    <property name="enabled">
+                      <bool>false</bool>
+                    </property>
+                    <property name="title">
+                      <string>Menu</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_2">
+                      <item>
+                        <widget class="QLabel" name="label_3">
+                          <property name="font">
+                            <font>
+                              <pointsize>16</pointsize>
+                              <bold>true</bold>
+                            </font>
+                          </property>
+                          <property name="text">
+                            <string>CHOOSE THE RIGHT PRICE</string>
+                          </property>
+                          <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                          </property>
+                        </widget>
+                      </item>
+                      <item>
+                        <layout class="QVBoxLayout" name="functionGroup">
+                          <item>
+                            <widget class="QPushButton" name="btnSingle">
+                              <property name="text">
+                                <string>Single play</string>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QPushButton" name="btnPvP">
+                              <property name="text">
+                                <string>2v2 mode</string>
+                              </property>
+                            </widget>
+                          </item>
+                          <item>
+                            <widget class="QPushButton" name="btnViewRank">
+                              <property name="text">
+                                <string>View Ranking</string>
+                              </property>
+                            </widget>
+                          </item>
+                        </layout>
+                      </item>
+                    </layout>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
 
           ## Most Expensive Tab
           <widget class="QWidget" name="mostExpensiveTab">
@@ -298,7 +307,7 @@
             </layout>
             <widget class="QPushButton" name="btnBackToMenu_ME">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -310,6 +319,32 @@
               </property>
               <property name="text">
                 <string>Exit Game</string>
+              </property>
+            </widget>
+            <widget class="QLabel" name="singleScore_ME">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
@@ -641,7 +676,7 @@
             </layout>
             <widget class="QPushButton" name="btnBackToMenu_GC">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -653,6 +688,32 @@
               </property>
               <property name="text">
                 <string>Exit Game</string>
+              </property>
+            </widget>
+            <widget class="QLabel" name="singleScore_GC">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
@@ -1047,7 +1108,7 @@
             </widget>
             <widget class="QPushButton" name="btnBackToMenu_SP">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -1059,6 +1120,33 @@
               </property>
               <property name="text">
                 <string>Exit Game</string>
+              </property>
+            </widget>
+
+            <widget class="QLabel" name="singleScore_DP">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
@@ -1298,7 +1386,7 @@
                 </font>
               </property>
               <property name="text">
-                <string>Predict the total price for the following 3 products (ranging from 0 to 30000). The player wins if their prediction is correct or within 3000 units of the correct value.</string>
+                <string>Predict the total price for the following 3 products (ranging from 0 to 30000). The player wins if their prediction is correct or within 30 units of the correct value.</string>
               </property>
               <property name="wordWrap">
                 <bool>true</bool>
@@ -1561,7 +1649,7 @@
             </widget>
             <widget class="QPushButton" name="btnBackToMenu_SC">
               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="geometry">
                 <rect>
@@ -1572,7 +1660,34 @@
                 </rect>
               </property>
               <property name="text">
-                <string>Back to Menu</string>
+                <string>Exit game</string>
+              </property>
+            </widget>
+
+            <widget class="QLabel" name="singleScore_SC">
+              <property name="minimumSize">
+                <size>
+                  <width>160</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                </size>
+              </property>
+              <property name="font">
+                <font>
+                  <pointsize>16</pointsize>
+                  <bold>true</bold>
+                </font>
+              </property>
+              <property name="text">
+                <string>0 point</string>
+              </property>
+              <property name="alignment">
+                <set>Qt::AlignCenter</set>
               </property>
             </widget>
           </widget>
