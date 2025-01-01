@@ -573,6 +573,10 @@ void MainWindow::on_btnBET5000_clicked() {
 }
 
 void MainWindow::on_btnSubmitME_clicked() {
+    ui->label_most_expensive_price1->show();
+    ui->label_most_expensive_price2->show();
+    ui->label_most_expensive_price3->show();
+    
     if(ui->choseME->value() == m_solution_ME) {
         QMessageBox::information(this, "RESULT", QString("Congrats you made the right choice!"));
         if(m_p2p_mode) {
@@ -594,6 +598,12 @@ void MainWindow::on_btnSubmitME_clicked() {
 }
 
 void MainWindow::on_btnSubmitG_clicked() {
+    ui->label_grocery_price1->show();
+    ui->label_grocery_price2->show();
+    ui->label_grocery_price3->show();
+    ui->label_grocery_price4->show();
+    ui->label_grocery_price5->show();
+
     int userAmount[5] = {ui->quantityProduct1->value(),
                          ui->quantityProduct2->value(),
                          ui->quantityProduct3->value(),
@@ -624,6 +634,11 @@ void MainWindow::on_btnSubmitG_clicked() {
 }
 
 void MainWindow::on_btnSubmitDP_clicked() {
+    ui->label_dp_price1->show();
+    ui->label_dp_price2->show();
+    ui->label_dp_price3->show();
+    ui->label_dp_price4->show();
+
     QCheckBox* check[4] = {ui->check1_DP, ui->check2_DP, ui->check3_DP, ui->check4_DP};
     int cntCheck = 0;
     int uncheckIndex = -1;
@@ -685,16 +700,19 @@ void MainWindow::setupME() {
         id3 = randomProductIndex();
     }
 
-    // Thiết lập ảnh và tên sản phẩm
-    loadImageToLabel(ui->label_pic1, m_product_list[id1].imgPath);
-    ui->label_name1->setText(m_product_list[id1].name);
+    // Thiết lập ảnh, giá và tên sản phẩm
+    QLabel* labels_pic[] = {ui->label_pic1, ui->label_pic2, ui->label_pic3};
+    QLabel* labels_name[] = {ui->label_name1, ui->label_name2, ui->label_name3};
+    QLabel* labels_price[] = {ui->label_most_expensive_price1, ui->label_most_expensive_price2, ui->label_most_expensive_price3};
+    int ids[] = {id1, id2, id3};
 
-    loadImageToLabel(ui->label_pic2, m_product_list[id2].imgPath);
-    ui->label_name2->setText(m_product_list[id2].name);
-
-    loadImageToLabel(ui->label_pic3, m_product_list[id3].imgPath);
-    ui->label_name3->setText(m_product_list[id3].name);
-
+    for (int i = 0; i < 3; ++i) {
+        loadImageToLabel(labels_pic[i], m_product_list[ids[i]].imgPath);
+        labels_name[i]->setText(m_product_list[ids[i]].name);
+        labels_price[i]->setText(QString::number(m_product_list[ids[i]].price) + " USD");
+        labels_price[i]->hide();
+    }
+    
     // Tìm sản phẩm có giá cao nhất
     if (m_product_list[id1].price > m_product_list[id2].price && m_product_list[id1].price > m_product_list[id3].price)
         m_solution_ME = 1;
@@ -721,12 +739,17 @@ void MainWindow::setupGrocery() {
     int amount;
     QLabel* pic[5] = {ui->labelG_pic1, ui->labelG_pic2, ui->labelG_pic3, ui->labelG_pic4, ui->labelG_pic5};
     QLabel* name[5] = {ui->labelG_name1, ui->labelG_name2, ui->labelG_name3, ui->labelG_name4, ui->labelG_name5};
+    QLabel* labels_price[5] = {ui->label_grocery_price1, ui->label_grocery_price2, ui->label_grocery_price3, ui->label_grocery_price4, ui->label_grocery_price5};
+
     for (int i = 0; i < 5; i++) {
-    amount = (rand() % 3) + 1;
-    m_total_G += (amount * m_product_list[m_ID_G[i]].price);
-    loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
-    name[i]->setText(m_product_list[m_ID_G[i]].name);
-}
+        amount = (rand() % 3) + 1;
+        m_total_G += (amount * m_product_list[m_ID_G[i]].price);
+        loadImageToLabel(pic[i], m_product_list[m_ID_G[i]].imgPath);
+        name[i]->setText(m_product_list[m_ID_G[i]].name);
+        labels_price[i]->setText(QString::number(m_product_list[m_ID_G[i]].price) + " USD");
+        labels_price[i]->hide();
+    }
+
     ui->rangeInp->setText(QString("From %1 to %2 USD").arg(m_total_G-20).arg(m_total_G+20));
     ui->quantityProduct1->setValue(0);
     ui->quantityProduct2->setValue(0);
@@ -750,11 +773,16 @@ void MainWindow::setupDP() {
     m_index_DP = rand() % 4;
     QLabel* pic[4] = {ui->pic1_DP, ui->pic2_DP, ui->pic3_DP, ui->pic4_DP};
     QLabel* name[4] = {ui->name1_DP, ui->name2_DP, ui->name3_DP, ui->name4_DP};
+    QLabel* price[4] = {ui->label_dp_price1, ui->label_dp_price2, ui->label_dp_price3, ui->label_dp_price4};
+
     QCheckBox* check[4] = {ui->check1_DP, ui->check2_DP, ui->check3_DP, ui->check4_DP};
+
     for(int i = 0; i < 4; i++) {
         loadImageToLabel(pic[i], m_product_list[indexList[i]].imgPath); 
         name[i]->setText(m_product_list[indexList[i]].name);
         check[i]->setChecked(false);
+        price[i]->setText(QString::number(m_product_list[indexList[i]].price) + " USD");
+        price[i]->hide();
     }
     ui->rangeInp_DP->setText(QString("Given price: %1 USD").arg(m_product_list[indexList[m_index_DP]].price));
     setCurrentTab(DISPLAY::DANGER_PRICE);
@@ -788,7 +816,7 @@ void MainWindow::setupTSC() {
         loadImageToLabel(picLabels[i], m_product_list[productIDs[i]].imgPath);
 
         nameLabels[i]->setText(m_product_list[productIDs[i]].name);
-        priceLabels[i]->setText(QString::number(m_product_list[productIDs[i]].price));
+        priceLabels[i]->setText(QString::number(m_product_list[productIDs[i]].price) + " USD");
         priceLabels[i]->hide();
     }
 

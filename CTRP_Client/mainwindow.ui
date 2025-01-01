@@ -252,6 +252,67 @@
                   </item>
                 </layout>
               </item>
+
+              <item>
+                <widget class="QWidget" name="layoutWidget_2">
+                  <property name="geometry">
+                    <rect>
+                      <x>10</x>
+                      <y>370</y>
+                      <width>611</width>
+                      <height>61</height>
+                    </rect>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                    <item>
+                      <widget class="QLabel" name="label_most_expensive_price1">
+                        <property name="font">
+                          <font>
+                            <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="label_most_expensive_price2">
+                        <property name="font">
+                          <font>
+                            <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="label_most_expensive_price3">
+                        <property name="font">
+                          <font>
+                          <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+          
               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
@@ -635,6 +696,95 @@
                     <widget class="QSpinBox" name="quantityProduct5"/>
                   </item>
                 </layout>
+              </item>
+              <item>
+                <widget class="QWidget" name="layoutWidget_2">
+                  <property name="geometry">
+                    <rect>
+                      <x>10</x>
+                      <y>370</y>
+                      <width>611</width>
+                      <height>20</height>
+                    </rect>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                    <item>
+                      <widget class="QLabel" name="label_grocery_price1">
+                        <property name="font">
+                          <font>
+                            <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="label_grocery_price2">
+                        <property name="font">
+                          <font>
+                            <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="label_grocery_price3">
+                        <property name="font">
+                          <font>
+                          <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="label_grocery_price4">
+                        <property name="font">
+                          <font>
+                          <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QLabel" name="label_grocery_price5">
+                        <property name="font">
+                          <font>
+                          <pointsize>10</pointsize>
+                          </font>
+                        </property>
+                        <property name="text">
+                          <string>TextLabel</string>
+                        </property>
+                        <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
               </item>
               <item>
                 <spacer name="verticalSpacer">
@@ -1087,6 +1237,80 @@
                 </item>
               </layout>
             </widget>
+
+            <widget class="QWidget" name="layoutWidget_2">
+              <property name="geometry">
+                <rect>
+                  <x>10</x>
+                  <y>370</y>
+                  <width>611</width>
+                  <height>20</height>
+                </rect>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_14">
+                <item>
+                  <widget class="QLabel" name="label_dp_price1">
+                    <property name="font">
+                      <font>
+                        <pointsize>10</pointsize>
+                      </font>
+                    </property>
+                    <property name="text">
+                      <string>TextLabel</string>
+                    </property>
+                    <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QLabel" name="label_dp_price2">
+                    <property name="font">
+                      <font>
+                        <pointsize>10</pointsize>
+                      </font>
+                    </property>
+                    <property name="text">
+                      <string>TextLabel</string>
+                    </property>
+                    <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QLabel" name="label_dp_price3">
+                    <property name="font">
+                      <font>
+                      <pointsize>10</pointsize>
+                      </font>
+                    </property>
+                    <property name="text">
+                      <string>TextLabel</string>
+                    </property>
+                    <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QLabel" name="label_dp_price4">
+                    <property name="font">
+                      <font>
+                      <pointsize>10</pointsize>
+                      </font>
+                    </property>
+                    <property name="text">
+                      <string>TextLabel</string>
+                    </property>
+                    <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
+
             <widget class="QWidget" name="layoutWidget_6">
               <property name="geometry">
                 <rect>
