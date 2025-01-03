@@ -876,13 +876,8 @@ void MainWindow::on_btnSpinWheel_clicked()
 
 void MainWindow::on_btnSubmitLW_clicked()
 {
-    if(m_p2p_mode) {
-        // Need to discuss
-        // m_p2p_score += bonus;
-    } else {
-        m_score += bonus;
-        ui->scoreInp->setText(QString::number(m_score));
-    }
+    m_score += bonus;
+    ui->scoreInp->setText(QString::number(m_score));
     setupTSC();
 }
 

@@ -1,19 +1,41 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QNetworkInterface>
+#include <QHostAddress>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     m_server = new QTcpServer();
 
-    if(m_server->listen(QHostAddress::Any, 8080))
-    {
+    if (m_server->listen(QHostAddress::Any, 8080)) {
         connect(m_server, &QTcpServer::newConnection, this, &MainWindow::newConnection);
-        showLog("Server is listening...");
-    }
-    else
-    {
-        QMessageBox::critical(this,"SERVER", QString("Unable to start the server: %1.").arg(m_server->errorString()));
+
+        QString ipAddress;
+        for (const QNetworkInterface &interface : QNetworkInterface::allInterfaces()) {
+            if (interface.flags().testFlag(QNetworkInterface::IsUp) &&
+                interface.flags().testFlag(QNetworkInterface::IsRunning) &&
+                !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+                
+                for (const QNetworkAddressEntry &entry : interface.addressEntries()) {
+                    if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                        ipAddress = entry.ip().toString();
+                        break;
+                    }
+                }
+            }
+            if (!ipAddress.isEmpty()) break;
+        }
+
+        if (ipAddress.isEmpty()) {
+            ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+        }
+
+        showLog(QString("Server is listening on IP: %1, Port: 8080").arg(ipAddress));
+    } 
+    else {
+        QMessageBox::critical(this, "SERVER", 
+            QString("Unable to start the server: %1.").arg(m_server->errorString()));
         exit(EXIT_FAILURE);
     }
 
